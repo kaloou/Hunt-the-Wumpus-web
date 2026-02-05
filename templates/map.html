@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+	</head>
+	<body>
+		<table>
+			{% for row in table %}
+			<tr>
+				{% for tile in row %}
+				<td>
+					<div class="tile">
+						{% for layer in tile %} {% for div in layer %}
+						<div class="{{ div }}"></div>
+						{% endfor %} {% endfor %}
+					</div>
+				</td>
+				{% endfor %}
+			</tr>
+			{% endfor %}
+		</table>
+		<!-- Example of a 8x6 grid with layered tiles 
+		<table>
+			<tr>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+						<div class="layer entity player centered"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base downright"></div>
+						<div class="layer base upleft"></div>
+						<div class="layer overlay"></div>
+						<div class="layer entity player topright"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+						<div class="layer entity player centered"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+						<div class="layer entity player topleft"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base pit"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base pit"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+						<div class="layer entity bat"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+                        <div class="layer entity player topleft"></div>
+                        <div class="layer entity player bottomright"></div>
+                    </div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay slime"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+						<div class="layer entity wumpus"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base upright"></div>
+						<div class="layer base downleft"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+						<div class="layer entity bat"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base downleft"></div>
+						<div class="layer base upright"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay"></div>
+					</div>
+				</td>
+				<td>
+					<div class="tile">
+						<div class="layer base center"></div>
+						<div class="layer overlay blood"></div>
+					</div>
+				</td>
+			</tr>
+		</table>
+		-->
+	</body>
+</html>
