@@ -10,7 +10,7 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: #061e1f;
+	background-color: blue; /*#061e1f*/
 	overflow: hidden;
 }
 
