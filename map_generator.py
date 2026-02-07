@@ -31,271 +31,241 @@ RIGHT = 2
 def place_pit(table, nb_pits):
     poss = []
     cpt = nb_pits
-    while (cpt > 0):
-        pos = (random.randint(0,5), random.randint(0,7))
-        if (table[pos[0]][pos[1]][0] != CAVE):
+    while cpt > 0:
+        y = random.randint(0, ROW - 1)
+        x = random.randint(0, COL - 1)
+
+        if table[y][x][0] != CAVE:
             continue
-        else:
-            table[pos[0]][pos[1]][0] = PIT
-            poss.append((pos[0],pos[1]))
-            cpt -= 1
+
+        table[y][x][0] = PIT
+        poss.append((y, x))
+        cpt -= 1
+
     return poss
 
 def place_wumpus(table):
-    while (True):
-        pos = (random.randint(0,5), random.randint(0,7))
-        if (table[pos[0]][pos[1]][0] != CAVE):
-            continue
-        else:
-            break
-    table[pos[0]][pos[1]][3] = WUMPUS
-    return ((pos[0],pos[1]))
+    while True:
+        y = random.randint(0, ROW - 1)
+        x = random.randint(0, COL - 1)
+
+        if (table[y][x][0] == CAVE or table[y][x][0] == PIT) and table[y][x][3] == 0:
+            table[y][x][3] = WUMPUS
+            return y, x
 
 def place_bat(table, nb_bats):
     cpt = nb_bats
+    while cpt > 0:
+        y = random.randint(0, ROW - 1)
+        x = random.randint(0, COL - 1)
 
-    while (cpt > 0):
-        pos = (random.randint(0,5), random.randint(0,7))
-        if (table[pos[0]][pos[1]][0] != CAVE or table[pos[0]][pos[1]][3] != 0):
+        if table[y][x][3] != 0 or table[y][x][0] == ULDRTUNNEL or table[y][x][0] == URDLTUNNEL:
             continue
-        else:
-            table[pos[0]][pos[1]][3] = BAT
-            cpt -=1
-   
+
+        table[y][x][3] = BAT
+        cpt -= 1
+
 def place_slime(table, pit_poss):
     for pit in pit_poss:
         base_y = pit[0]
         base_x = pit[1]
-        y = base_y
-        x = base_x
-        
+
         direction = UP
         cpt_slime = 0
-        y = (y - 1) % ROW
-        while (cpt_slime < 4):
-            
-            if table[y][x][3] ==  WUMPUS or table[y][x][0] ==  PIT:
-                if direction == UP:
-                    y = (y - 1) % ROW
-                elif direction == DOWN:
-                    y = (y + 1) % ROW
-                elif direction == LEFT:
-                    x = (x - 1) % COL
-                elif direction == RIGHT:
-                    x = (x + 1) % COL
 
-            elif table[y][x][0] == ULDRTUNNEL:
-                if direction == UP:
-                    direction = LEFT
-                    x = (x - 1) % COL
+        y = (base_y - 1) % ROW
+        x = base_x
 
-                elif direction == DOWN:
-                    direction = RIGHT
-                    x = (x + 1) % COL
+        while cpt_slime < 4:
 
-                elif direction == LEFT:
-                    direction = UP
-                    y = (y - 1) % ROW
-
-                elif direction == RIGHT:
-                    direction = DOWN
-                    y = (y + 1) % ROW
+            if table[y][x][0] == ULDRTUNNEL:
+                if direction == UP: direction = LEFT
+                elif direction == DOWN: direction = RIGHT
+                elif direction == LEFT: direction = UP
+                elif direction == RIGHT: direction = DOWN
 
             elif table[y][x][0] == URDLTUNNEL:
-                if direction == UP:
-                    direction = RIGHT
-                    x = (x + 1) % COL
+                if direction == UP: direction = RIGHT
+                elif direction == DOWN: direction = LEFT
+                elif direction == LEFT: direction = DOWN
+                elif direction == RIGHT: direction = UP
 
-                elif direction == DOWN:
-                    direction = LEFT
-                    x = (x - 1) % COL
-
-                elif direction == LEFT:
-                    direction = DOWN
-                    y = (y + 1) % ROW
-
-                elif direction == RIGHT:
-                    direction = UP
-                    y = (y - 1) % ROW
-            
             elif table[y][x][0] == CAVE:
                 table[y][x][1] = SLIME
                 cpt_slime += 1
 
-                if cpt_slime == 1:
-                    direction = DOWN
-                    y = base_y
-                    x = base_x
+                if cpt_slime == 1: direction, y, x = DOWN, base_y, base_x
+                elif cpt_slime == 2: direction, y, x = LEFT, base_y, base_x
+                elif cpt_slime == 3: direction, y, x = RIGHT, base_y, base_x
 
-                elif cpt_slime == 2:
-                    direction = LEFT
-                    y = base_y
-                    x = base_x
+            elif table[y][x][0] == PIT:
+                cpt_slime += 1
 
-                elif cpt_slime == 3:
-                    direction = RIGHT
-                    y = base_y
-                    x = base_x
+            if direction == UP: y = (y - 1) % ROW
+            elif direction == DOWN: y = (y + 1) % ROW
+            elif direction == LEFT: x = (x - 1) % COL
+            elif direction == RIGHT: x = (x + 1) % COL
 
-def place_blood(table, wumpuspos):
-
-        base_y = wumpuspos[0]
-        base_x = wumpuspos[1]
-        y = base_y
-        x = base_x
+def place_blood(table, base_y, base_x):
+    y = base_y
+    x = base_x
+    
+    direction = UP
+    cpt_blood = 0
+    y = (y - 1) % ROW
+    while cpt_blood < 16:
         
-        direction = UP
-        cpt_blood = 0
-        y = (y - 1) % ROW
-        while (cpt_blood < 16):
+        if table[y][x][0] == PIT or table[y][x][3] == WUMPUS :
+            if direction == UP:
+                y = (y - 1) % ROW
+            elif direction == DOWN:
+                y = (y + 1) % ROW
+            elif direction == LEFT:
+                x = (x - 1) % COL
+            elif direction == RIGHT:
+                x = (x + 1) % COL
+
+        elif table[y][x][0] == ULDRTUNNEL:
+            if direction == UP:
+                direction = LEFT
+                x = (x - 1) % COL
+
+            elif direction == DOWN:
+                direction = RIGHT
+                x = (x + 1) % COL
+
+            elif direction == LEFT:
+                direction = UP
+                y = (y - 1) % ROW
+
+            elif direction == RIGHT:
+                direction = DOWN
+                y = (y + 1) % ROW
+
+        elif table[y][x][0] == URDLTUNNEL:
+            if direction == UP:
+                direction = RIGHT
+                x = (x + 1) % COL
+
+            elif direction == DOWN:
+                direction = LEFT
+                x = (x - 1) % COL
+
+            elif direction == LEFT:
+                direction = DOWN
+                y = (y + 1) % ROW
+
+            elif direction == RIGHT:
+                direction = UP
+                y = (y - 1) % ROW
+        
+        elif table[y][x][0] == CAVE:
+            table[y][x][2] = BLOOD
+            cpt_blood += 1
+
+            # --- UP
+            if cpt_blood == 2:
+                y = base_y
+                x = base_x
+                direction = UP
             
-            if table[y][x][0] == PIT or table[y][x][3] == WUMPUS :
-                if direction == UP:
-                    y = (y - 1) % ROW
-                elif direction == DOWN:
-                    y = (y + 1) % ROW
-                elif direction == LEFT:
-                    x = (x - 1) % COL
-                elif direction == RIGHT:
-                    x = (x + 1) % COL
-
-            elif table[y][x][0] == ULDRTUNNEL:
+            elif cpt_blood == 3:
                 if direction == UP:
                     direction = LEFT
-                    x = (x - 1) % COL
-
-                elif direction == DOWN:
-                    direction = RIGHT
-                    x = (x + 1) % COL
-
-                elif direction == LEFT:
-                    direction = UP
-                    y = (y - 1) % ROW
-
-                elif direction == RIGHT:
-                    direction = DOWN
-                    y = (y + 1) % ROW
-
-            elif table[y][x][0] == URDLTUNNEL:
-                if direction == UP:
-                    direction = RIGHT
-                    x = (x + 1) % COL
-
-                elif direction == DOWN:
-                    direction = LEFT
-                    x = (x - 1) % COL
-
                 elif direction == LEFT:
                     direction = DOWN
-                    y = (y + 1) % ROW
-
                 elif direction == RIGHT:
                     direction = UP
-                    y = (y - 1) % ROW
+                elif direction == DOWN:
+                    direction = RIGHT    
             
-            elif table[y][x][0] == CAVE:
-                table[y][x][2] = BLOOD
-                cpt_blood += 1
-
-                # --- UP
-                if cpt_blood == 2:
-                    y = base_y
-                    x = base_x
-                    direction = UP
-                
-                elif cpt_blood == 3:
-                    if direction == UP:
-                        direction = LEFT
-                    elif direction == LEFT:
-                        direction = DOWN
-                    elif direction == RIGHT:
-                        direction = UP
-                    elif direction == DOWN:
-                        direction = RIGHT    
-                
-                elif cpt_blood == 4:
-                    y = base_y
-                    x = base_x
-                    direction = UP
-                
-                elif cpt_blood == 5:
-                    if direction == UP:
-                        direction = RIGHT
-                    elif direction == LEFT:
-                        direction = UP
-                    elif direction == RIGHT:
-                        direction = DOWN
-                    elif direction == DOWN:
-                        direction = LEFT  
-
-                # --- DOWN
-                elif cpt_blood == 6:
-                    y = base_y
-                    x = base_x
-                    direction = DOWN
-                
-                elif cpt_blood == 8:
-                    y = base_y
-                    x = base_x
-                    direction = DOWN
-                
-                elif cpt_blood == 9:
-                    if direction == UP:
-                        direction = RIGHT
-                    elif direction == LEFT:
-                        direction = UP
-                    elif direction == RIGHT:
-                        direction = DOWN
-                    elif direction == DOWN:
-                        direction = LEFT    
-                
-                elif cpt_blood == 10:
-                    y = base_y
-                    x = base_x
-                    direction = DOWN
-                
-                elif cpt_blood == 11:
-                    if direction == UP:
-                        direction = LEFT
-                    elif direction == LEFT:
-                        direction = DOWN
-                    elif direction == RIGHT:
-                        direction = UP
-                    elif direction == DOWN:
-                        direction = RIGHT  
-
-                # --- RIGHT
-                elif cpt_blood == 12:
-                    y = base_y
-                    x = base_x
-                    direction = RIGHT
-               
-                # --- LEFT
-                elif cpt_blood == 14:
-                    y = base_y
-                    x = base_x
-                    direction = LEFT
-
-                # --- FOUR DIRECTIONS
+            elif cpt_blood == 4:
+                y = base_y
+                x = base_x
+                direction = UP
+            
+            elif cpt_blood == 5:
                 if direction == UP:
-                    y = (y - 1) % ROW
-
-                elif direction == DOWN:
-                    y = (y + 1) % ROW
-
+                    direction = RIGHT
                 elif direction == LEFT:
-                    x = (x - 1) % COL
-                    
+                    direction = UP
                 elif direction == RIGHT:
-                    x = (x + 1) % COL
+                    direction = DOWN
+                elif direction == DOWN:
+                    direction = LEFT  
+
+            # --- DOWN
+            elif cpt_blood == 6:
+                y = base_y
+                x = base_x
+                direction = DOWN
+            
+            elif cpt_blood == 8:
+                y = base_y
+                x = base_x
+                direction = DOWN
+            
+            elif cpt_blood == 9:
+                if direction == UP:
+                    direction = RIGHT
+                elif direction == LEFT:
+                    direction = UP
+                elif direction == RIGHT:
+                    direction = DOWN
+                elif direction == DOWN:
+                    direction = LEFT    
+            
+            elif cpt_blood == 10:
+                y = base_y
+                x = base_x
+                direction = DOWN
+            
+            elif cpt_blood == 11:
+                if direction == UP:
+                    direction = LEFT
+                elif direction == LEFT:
+                    direction = DOWN
+                elif direction == RIGHT:
+                    direction = UP
+                elif direction == DOWN:
+                    direction = RIGHT  
+
+            # --- RIGHT
+            elif cpt_blood == 12:
+                y = base_y
+                x = base_x
+                direction = RIGHT
+           
+            # --- LEFT
+            elif cpt_blood == 14:
+                y = base_y
+                x = base_x
+                direction = LEFT
+
+            # --- FOUR DIRECTIONS
+            if direction == UP:
+                y = (y - 1) % ROW
+
+            elif direction == DOWN:
+                y = (y + 1) % ROW
+
+            elif direction == LEFT:
+                x = (x - 1) % COL
+                
+            elif direction == RIGHT:
+                x = (x + 1) % COL
 
 def place_player(table):
     while True:
-        pos = (random.randint(0,5), random.randint(0,7))
-        if table[pos[0]][pos[1]][0] != CAVE or table[pos[0]][pos[1]][3] != 0 or table[pos[0]][pos[1]][1] == SLIME or table[pos[0]][pos[1]][2] == BLOOD:
-            continue
+        y = random.randint(0, ROW - 1)
+        x = random.randint(0, COL - 1)
+
+        if table[y][x][0] != CAVE: continue
+        if table[y][x][3] != 0: continue
+        if table[y][x][1] == SLIME or table[y][x][2] == BLOOD: continue
         break
-    table[pos[0]][pos[1]][3] = PLAYER
+
+    table[y][x][3] = PLAYER
 
 def can_tunnel_be_placed(table, tunnel, x, y):
     if tunnel == ULDRTUNNEL:
@@ -360,10 +330,10 @@ def generate_map(difficulty):
 
     # Place the elements of the game
     pit_poss = place_pit(table, nb_pits)
-    wumpus_pos = place_wumpus(table)
+    wump_y, wump_x = place_wumpus(table)
     place_bat(table, nb_bats)
     place_slime(table, pit_poss)
-    place_blood(table, wumpus_pos)
+    place_blood(table, wump_y, wump_x)
     place_player(table)
     
     return table

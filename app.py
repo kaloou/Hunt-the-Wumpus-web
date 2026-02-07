@@ -10,4 +10,5 @@ def base_route():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    print("===================================\nStarting the Wumpus Game server...\n===================================")
+    app.run(debug=True, port=5001)
