@@ -28,7 +28,7 @@ def can_tunnel_be_placed(table, tunnel, x, y):
             return False
 
     elif tunnel == URDLTUNNEL:
-        if table[y][(x - 1) % COL][0] == ULDRTUNNEL and table[(y + 1) % ROW][(x - 1) % COL][0] == URDLTUNNEL and table[(y - 1) % ROW][x][0] == ULDRTUNNEL:
+        if table[y][(x - 1) % COL][0] == ULDRTUNNEL and table[(y - 1) % ROW][(x - 1) % COL][0] == URDLTUNNEL and table[(y - 1) % ROW][x][0] == ULDRTUNNEL:
             return False
         
     return True
