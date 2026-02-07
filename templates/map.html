@@ -13,14 +13,22 @@
 				{% for tile in row %}
 				<td>
 					<div class="tile">
-						{% if tile == 1 %}
+						{% if tile[0] == 1 %}
 						<div class="layer base center"></div>
-						{% elif tile == 3 %}
+						{% elif tile[0] == 3 %}
 						<div class="layer base upleft"></div>
 						<div class="layer base downright"></div>
-						{% elif tile == 4 %}
+						{% elif tile[0] == 4 %}
 						<div class="layer base upright"></div>
 						<div class="layer base downleft"></div>
+						{% elif tile[0] == 6 %}
+						<div class="layer base pit"></div>
+						{% endif %} {% if tile[2] == 7 %}
+						<div class="layer entity bat"></div>
+						{% elif tile[2] == 8 %}
+						<div class="layer entity wumpus"></div>
+						{% elif tile[2] == 9 %}
+						<div class="layer entity player centered"></div>
 
 						{% endif %}
 					</div>

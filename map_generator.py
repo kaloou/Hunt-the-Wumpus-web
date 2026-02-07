@@ -24,11 +24,11 @@ SLIME = 11
 ##===========================
 def can_tunnel_be_placed(table, tunnel, x, y):
     if tunnel == ULDRTUNNEL:
-        if table[y][(x + 1) % COL] == URDLTUNNEL and table[(y + 1) % ROW][(x + 1) % COL] == ULDRTUNNEL and table[(y - 1) % ROW][x] == URDLTUNNEL:
+        if table[y][(x + 1) % COL][0] == URDLTUNNEL and table[(y + 1) % ROW][(x + 1) % COL][0] == ULDRTUNNEL and table[(y - 1) % ROW][x][0] == URDLTUNNEL:
             return False
 
     elif tunnel == URDLTUNNEL:
-        if table[y][(x - 1) % COL] == ULDRTUNNEL and table[(y + 1) % ROW][(x - 1) % COL] == URDLTUNNEL and table[(y - 1) % ROW][x] == ULDRTUNNEL:
+        if table[y][(x - 1) % COL][0] == ULDRTUNNEL and table[(y + 1) % ROW][(x - 1) % COL][0] == URDLTUNNEL and table[(y - 1) % ROW][x][0] == ULDRTUNNEL:
             return False
         
     return True
@@ -75,6 +75,7 @@ def generate_map(difficulty):
     table = [
          [
             [
+                0,0,0
             ] for _ in range(COL)
          ] for _ in range(ROW)
     ] 
@@ -82,16 +83,71 @@ def generate_map(difficulty):
     # Fill the map with caves and tunnels
     for i in range(ROW):
         for j in range(COL):
-            table[i][j] = get_cell(cells, table, j,i)
-            print(table)
+            table[i][j][0] = get_cell(cells, table, j,i)
 
+    pit_poss = place_pit(table)
+    wumpus_pos = place_wumpus(table)
+    place_bat(table, difficulty)
+    #place_slime(table, pit_poss)
+    #place_blood(table, wumpus_pos)
+    place_player(table)
+    
     print(table)
     return table
     
+def place_pit(table):
+    poss = []
+    cpt = 2
+    while (cpt > 0):
+        pos = (random.randint(0,5), random.randint(0,7))
+        if (table[pos[0]][pos[1]][0] != CAVE):
+            continue
+        else:
+            table[pos[0]][pos[1]][0] = PIT
+            poss.append((pos[0],pos[1]))
+            cpt -= 1
+    return poss
 
-table = generate_map(3)
+def place_wumpus(table):
+    while (True):
+        pos = (random.randint(0,5), random.randint(0,7))
+        if (table[pos[0]][pos[1]][0] != CAVE):
+            continue
+        else:
+            break
+    table[pos[0]][pos[1]][2] = WUMPUS
+    return ([pos[0]],[pos[1]])
+
+def place_bat(table, difficulty):
+    if difficulty == EASY:
+        cpt = 1
+    else:
+        cpt = 2
+    while (cpt > 0):
+        pos = (random.randint(0,5), random.randint(0,7))
+        if (table[pos[0]][pos[1]][0] != CAVE or table[pos[0]][pos[1]][2] != 0):
+            continue
+        else:
+            table[pos[0]][pos[1]][2] = BAT
+            cpt -=1
+"""""   
+def place_slime(table, pit_poss):
+    for pit in range(pit_poss):
+        y = pit[0]
+        x = pit[1]
+        #top
+        while (table[0][(y+1)%ROW][x]):
+            pass
+        
 
 
-
-
-
+def place_blood(table):
+    pass
+"""
+def place_player(table):
+    while True:
+        pos = (random.randint(0,5), random.randint(0,7))
+        if table[pos[0]][pos[1]][0] != CAVE or table[pos[0]][pos[1]][2] != 0:
+            continue
+        break
+    table[pos[0]][pos[1]][2] = PLAYER
