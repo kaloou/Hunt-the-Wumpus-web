@@ -136,7 +136,7 @@ def place_slime(table, pit_poss):
                     direction = RIGHT
                     y = base_y
                     x = base_x
-           
+
 def place_blood(table, wumpuspos):
 
         base_y = wumpuspos[0]
@@ -292,7 +292,7 @@ def place_blood(table, wumpuspos):
 def place_player(table):
     while True:
         pos = (random.randint(0,5), random.randint(0,7))
-        if table[pos[0]][pos[1]][0] != CAVE or table[pos[0]][pos[1]][3] != 0:
+        if table[pos[0]][pos[1]][0] != CAVE or table[pos[0]][pos[1]][3] != 0 or table[pos[0]][pos[1]][1] == SLIME or table[pos[0]][pos[1]][2] == BLOOD:
             continue
         break
     table[pos[0]][pos[1]][3] = PLAYER
