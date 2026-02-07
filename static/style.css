@@ -46,8 +46,12 @@ td {
 	z-index: 2;
 }
 
-.entity {
+.overlay2 {
 	z-index: 3;
+}
+
+.entity {
+	z-index: 4;
 }
 
 .topleft {

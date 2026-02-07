@@ -25,11 +25,14 @@
 						<div class="layer base pit"></div>
 						{% endif %} {% if tile[2] == 7 %}
 						<div class="layer entity bat"></div>
-						{% elif tile[2] == 8 %}
+						{% elif tile[3] == 8 %}
 						<div class="layer entity wumpus"></div>
-						{% elif tile[2] == 9 %}
+						{% elif tile[3] == 9 %}
 						<div class="layer entity player centered"></div>
-
+						{% endif %} {% if tile[1] == 11 %}
+						<div class="layer overlay slime"></div>
+						{% endif %} {% if tile[2] == 10 %}
+						<div class="layer overlay blood"></div>
 						{% endif %}
 					</div>
 				</td>
