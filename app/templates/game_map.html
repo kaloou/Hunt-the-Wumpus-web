@@ -1,0 +1,41 @@
+<table>
+	{% for row in table %}
+	<tr>
+		{% for tile in row %}
+		<td>
+			<div class="tile">
+				{% if tile["seen"] == 1 %} {% if tile["path"] == 1 %}
+				<div class="layer base center"></div>
+
+				{% elif tile["path"] == 3 or tile["path"] == 4 %} {% for corr in tile["corridors_seen"] %}
+				<div class="layer base {{ corr }}"></div>
+				{% endfor %} {% elif tile["path"] == 6 %}
+				<div class="layer base pit"></div>
+				{% endif %} {% if 7 in tile["entities"] %}
+				<div class="layer entity bat"></div>
+				{% elif 8 in tile["entities"] %}
+				<div class="layer entity wumpus"></div>
+				{% endif %} {% if 9 in tile["entities"] %} {% if tile["path"] == 3 %} {% if came_from == "up" or came_from ==
+				"right" %}
+				<div class="layer entity player topright"></div>
+				{% else %}
+				<div class="layer entity player bottomleft"></div>
+				{% endif %} {% elif tile["path"] == 4 %} {% if came_from == "up" or came_from == "left" %}
+				<div class="layer entity player topleft"></div>
+				{% else %}
+				<div class="layer entity player bottomright"></div>
+				{% endif %} {% else %}
+				<div class="layer entity player centered"></div>
+				{% endif %} {% endif %} {% if 11 in tile["effects"] %}
+				<div class="layer overlay slime"></div>
+				{% endif %} {% if 10 in tile["effects"] %}
+				<div class="layer overlay blood"></div>
+				{% endif %} {% else %}
+				<div class="layer hidden"></div>
+				{% endif %}
+			</div>
+		</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>

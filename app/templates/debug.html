@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block title %}Debug{% endblock %} {% block content %}
+
+<div class="debug-grid">
+	<section class="panel">
+		<h2>LINKS</h2>
+		<ul>
+			<li><a href="{{url_for('debug.go_home_page')}}">Home page</a></li>
+			<li><a href="{{url_for('debug.go_game_page')}}">Game page</a></li>
+		</ul>
+	</section>
+
+	<section class="panel">
+		<h2>ACTIONS</h2>
+		<ul>
+			<li><a href="{{url_for('debug.destroy_session')}}">Destroy session</a></li>
+		</ul>
+	</section>
+
+	<section class="panel">
+		<h2>SESSION</h2>
+		<pre>Player Y = {{ session_data.y }}</pre>
+		<pre>Player X = {{ session_data.x }}</pre>
+		<pre>Came from = {{ session_data.came_from }}</pre>
+	</section>
+
+	<section class="panel map-panel">
+		<h2>MAP</h2>
+
+		<table class="map">
+			{% for row in session_data.game_map %}
+			<tr>
+				{% for tile in row %}
+				<td class="tilee">
+					<div>P: {{ tile.path }}</div>
+					<div>E: {{ tile.entities }}</div>
+					<div>Fx: {{ tile.effects }}</div>
+					<div>Hi: {{ tile.hidden }}</div>
+					<div>Cor: {{ tile.corridors }}</div>
+				</td>
+				{% endfor %}
+			</tr>
+			{% endfor %}
+		</table>
+	</section>
+</div>
+
+{% endblock %}

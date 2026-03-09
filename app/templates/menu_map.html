@@ -1,0 +1,27 @@
+<table>
+	{% for row in table %}
+	<tr>
+		{% for tile in row %}
+		<td>
+			<div class="tile">
+				{# si hidden == 0 => on ajoute la classe "hidden" #} {% set h = "hidden" if tile["hidden"] == 0 else "" %} {#
+				========================= BASE (sol) ========================= #} {% if tile["path"] == 1 %}
+				<div class="layer base center {{ h }}"></div>
+
+				{% elif tile["path"] == 3 %}
+				<div class="layer base upleft {{ h }}"></div>
+				<div class="layer base downright {{ h }}"></div>
+
+				{% elif tile["path"] == 4 %}
+				<div class="layer base upright {{ h }}"></div>
+				<div class="layer base downleft {{ h }}"></div>
+
+				{% elif tile["path"] == 6 %}
+				<div class="layer base pit {{ h }}"></div>
+				{% endif %}
+			</div>
+		</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>

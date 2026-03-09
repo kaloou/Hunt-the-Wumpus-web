@@ -1,0 +1,3 @@
+- faire algo floodfill
+- recheck algo blood placé chaque coin
+- use static folder in app and url path and template folder

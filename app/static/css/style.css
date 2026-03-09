@@ -1,0 +1,184 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: white; /*#061e1f
+	overflow: hidden;*/
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td {
+	width: min(12.5vw, 16.67vh);
+	height: min(12.5vw, 16.67vh);
+}
+
+/*UTILITY CLASSES*/
+.tile {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	aspect-ratio: 1 / 1;
+}
+
+.layer {
+	position: absolute;
+	inset: 0;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.base {
+	z-index: 1;
+}
+
+.overlay {
+	z-index: 2;
+}
+
+.entity {
+	z-index: 3;
+}
+
+.topleft {
+	background-position: top left;
+}
+.topright {
+	background-position-x: 121%;
+	background-position-y: -7%;
+}
+.bottomleft {
+	background-position: bottom left;
+}
+.bottomright {
+	background-position: bottom right;
+}
+.centered {
+	background-position: center;
+}
+.hidden {
+	visibility: hidden;
+}
+.absolute {
+	position: absolute;
+}
+/*SPRITES*/
+.center {
+	background-image: url('../assets/sprites/map/00_tileset_wumpus_cave1028.png');
+}
+
+.upright {
+	background-image: url('../assets/sprites/map/02_tileset_wumpus_cave1028.png');
+}
+
+.downright {
+	background-image: url('../assets/sprites/map/06_tileset_wumpus_cave1028.png');
+}
+
+.upleft {
+	background-image: url('../assets/sprites/map/07_tileset_wumpus_cave1028.png');
+}
+
+.downleft {
+	background-image: url('../assets/sprites/map/03_tileset_wumpus_cave1028.png');
+}
+
+.pit {
+	background-image: url('../assets/sprites/map/01_tileset_wumpus_cave1028.png');
+}
+
+.blood {
+	background-image: url('../assets/sprites/map/04_tileset_wumpus_cave1028.png');
+}
+
+.slime {
+	background-image: url('../assets/sprites/map/05_tileset_wumpus_cave1028.png');
+}
+
+.player {
+	background-image: url('../assets/sprites/player/Soldier_1/00_soldier1.png');
+	background-size: 70%;
+}
+.wumpus {
+	background-image: url('../assets/sprites/enemies/wumpus/00_wumpus_sprite_sheet1024.png');
+	background-size: 70%;
+	background-position: center;
+}
+.bat {
+	background-image: url('../assets/sprites/enemies/Bat//02_bat_sprite_sheet1024.png');
+	background-size: 60%;
+	background-position-x: center;
+	background-position-y: 65%;
+}
+
+#controls {
+	position: absolute;
+	z-index: 10;
+}
+
+.map {
+	border-collapse: collapse;
+}
+
+.tilee {
+	width: 80px;
+	height: 80px;
+	border: 1px solid #555;
+	font-size: 10px;
+	padding: 4px;
+	vertical-align: top;
+}
+
+/*DEBUG*/
+.debug-grid {
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+	gap: 10px;
+	padding: 10px;
+
+	font-family: monospace;
+}
+
+.panel {
+	border: 2px solid #00ff9c;
+
+	background: #0a0f0a;
+
+	padding: 10px;
+
+	color: #00ff9c;
+
+	box-shadow: 0 0 8px #00ff9c44;
+}
+
+.panel h2 {
+	margin-top: 0;
+	border-bottom: 1px solid #00ff9c;
+	padding-bottom: 5px;
+
+	font-size: 14px;
+}
+
+.panel ul {
+	padding-left: 15px;
+}
+
+.map-panel {
+	grid-column: span 2;
+}
+
+a {
+	color: #00ff9c;
+}
