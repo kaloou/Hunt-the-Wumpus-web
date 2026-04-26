@@ -99,7 +99,7 @@ def place_blood(table, base_y, base_x):
     direction = UP
     cpt_blood = 0
     y = (y - 1) % ROW
-    while cpt_blood < 16:
+    while cpt_blood < 24:
         
         if table[y][x]['path'] == PIT or WUMPUS in table[y][x]['entities']:
             if direction == UP:
@@ -115,15 +115,12 @@ def place_blood(table, base_y, base_x):
             if direction == UP:
                 direction = LEFT
                 x = (x - 1) % COL
-
             elif direction == DOWN:
                 direction = RIGHT
                 x = (x + 1) % COL
-
             elif direction == LEFT:
                 direction = UP
                 y = (y - 1) % ROW
-
             elif direction == RIGHT:
                 direction = DOWN
                 y = (y + 1) % ROW
@@ -132,15 +129,12 @@ def place_blood(table, base_y, base_x):
             if direction == UP:
                 direction = RIGHT
                 x = (x + 1) % COL
-
             elif direction == DOWN:
                 direction = LEFT
                 x = (x - 1) % COL
-
             elif direction == LEFT:
                 direction = DOWN
                 y = (y + 1) % ROW
-
             elif direction == RIGHT:
                 direction = UP
                 y = (y - 1) % ROW
@@ -221,25 +215,82 @@ def place_blood(table, base_y, base_x):
                 y = base_y
                 x = base_x
                 direction = RIGHT
-           
-            # --- LEFT
+            
             elif cpt_blood == 14:
+                y = base_y
+                x = base_x
+                direction = RIGHT
+
+            elif cpt_blood == 15:
+                if direction == UP:
+                    direction = RIGHT
+                elif direction == LEFT:
+                    direction = UP
+                elif direction == RIGHT:
+                    direction = DOWN
+                elif direction == DOWN:
+                    direction = LEFT
+
+            elif cpt_blood == 16:
+                y = base_y
+                x = base_x
+                direction = RIGHT
+
+            elif cpt_blood == 17:
+                if direction == UP:
+                    direction = LEFT
+                elif direction == LEFT:
+                    direction = DOWN
+                elif direction == RIGHT:
+                    direction = UP
+                elif direction == DOWN:
+                    direction = RIGHT
+
+            # --- LEFT
+            elif cpt_blood == 18:
                 y = base_y
                 x = base_x
                 direction = LEFT
 
-            # --- FOUR DIRECTIONS
+            elif cpt_blood == 20:
+                y = base_y
+                x = base_x
+                direction = LEFT
+
+            elif cpt_blood == 21:
+                if direction == UP:
+                    direction = RIGHT
+                elif direction == LEFT:
+                    direction = UP
+                elif direction == RIGHT:
+                    direction = DOWN
+                elif direction == DOWN:
+                    direction = LEFT
+
+            elif cpt_blood == 22:
+                y = base_y
+                x = base_x
+                direction = LEFT
+
+            elif cpt_blood == 23:
+                if direction == UP:
+                    direction = LEFT
+                elif direction == LEFT:
+                    direction = DOWN
+                elif direction == RIGHT:
+                    direction = UP
+                elif direction == DOWN:
+                    direction = RIGHT
+
             if direction == UP:
                 y = (y - 1) % ROW
-
             elif direction == DOWN:
                 y = (y + 1) % ROW
-
             elif direction == LEFT:
                 x = (x - 1) % COL
-                
             elif direction == RIGHT:
                 x = (x + 1) % COL
+
 
 def place_player(table):
     while True:
