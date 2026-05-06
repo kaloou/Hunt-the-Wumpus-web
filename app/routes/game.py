@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, session, redirect, url_for
 from app.game.map_generator import generate_map, create_menu_map, place_player
-from app.game.logic import move_player, shoot_arrow, check_bat_move
+from app.game.logic import move_player, shoot_arrow, check_bat_move, move_player_express
 from app.game.constants import *
 
 game_bp = Blueprint('game', __name__)
@@ -82,12 +82,15 @@ def play():
     came_from = session.get('came_from')
 
     # ---- Mouvement
+    express = session.get('express', False)
+    move_func = move_player_express if express else move_player
+
     if direction_y is not None:
-        y, x, came_from = move_player(game_map, direction_y, y, x, came_from)
+        y, x, came_from = move_func(game_map, direction_y, y, x, came_from)
         session['last_direction'] = direction_y
 
     elif direction_x is not None:
-        y, x, came_from = move_player(game_map, direction_x, y, x, came_from)
+        y, x, came_from = move_func(game_map, direction_x, y, x, came_from)
         session['last_direction'] = direction_x
 
     elif shoot is not None:
@@ -121,7 +124,7 @@ def play():
     session['x'] = x
     session['came_from'] = came_from
 
-    return render_template("game.html", map=game_map, came_from=came_from)
+    return render_template("game.html", map=game_map, came_from=came_from , blinded=session.get('blinded', False))
 # -------------------------
 # GAME OVER
 # -------------------------

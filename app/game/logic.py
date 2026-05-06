@@ -95,10 +95,35 @@ def move_player(map, direction, y, x, came_from):
         if corridor not in map[ny][nx]["corridors_seen"]:
             map[ny][nx]["corridors_seen"].append(corridor)
 
-    
-
     return ny, nx, new_came_from
 
+def move_player_express(map, direction, y, x, came_from):
+    if not can_move(map, y, x, direction, came_from):
+        return y, x, came_from
+
+    map[y][x]["entities"].remove(PLAYER)
+    ny, nx, new_came_from = step(y, x, direction)
+
+    while map[ny][nx]["path"] in (ULDRTUNNEL, URDLTUNNEL):
+        if map[ny][nx]["seen"] == 0:
+            map[ny][nx]["seen"] = 1
+
+        if map[ny][nx]["path"] == ULDRTUNNEL:
+            corridor = "downright" if new_came_from in [DOWN, LEFT] else "upleft"
+            if corridor not in map[ny][nx]["corridors_seen"]:
+                map[ny][nx]["corridors_seen"].append(corridor)
+        elif map[ny][nx]["path"] == URDLTUNNEL:
+            corridor = "downleft" if new_came_from in [DOWN, RIGHT] else "upright"
+            if corridor not in map[ny][nx]["corridors_seen"]:
+                map[ny][nx]["corridors_seen"].append(corridor)
+
+        ny, nx, new_came_from = step_follow(map, ny, nx, direction, new_came_from)
+
+    map[ny][nx]["entities"].append(PLAYER)
+    if map[ny][nx]["seen"] == 0:
+        map[ny][nx]["seen"] = 1
+
+    return ny, nx, new_came_from
 # -------------------------
 # SHOOT ARROW
 # -------------------------

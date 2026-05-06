@@ -4,7 +4,8 @@
 		{% for tile in row %}
 		<td>
 			<div class="tile">
-				{% if tile["seen"] == 1 %} {% if tile["path"] == CAVE %}
+				{% if (not blinded and tile["seen"] == 1) or (blinded and PLAYER in tile["entities"]) %} {% if tile["path"]
+				== CAVE %}
 				<div class="layer base center"></div>
 
 				{% elif tile["path"] == ULDRTUNNEL or tile["path"] == URDLTUNNEL %} {% for corr in tile["corridors_seen"] %}
