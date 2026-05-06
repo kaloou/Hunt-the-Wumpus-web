@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, session, redirect, url_for
 from app.game.map_generator import generate_map, create_menu_map, place_player
-from app.game.logic import move_player, shoot_arrow
+from app.game.logic import move_player, shoot_arrow, check_bat_move
 from app.game.constants import *
 
 game_bp = Blueprint('game', __name__)
@@ -51,6 +51,7 @@ def play():
     x = session['x']
     came_from = session.get('came_from')
 
+    # ---- Mouvement
     if direction_y is not None:
         y, x, came_from = move_player(game_map, direction_y, y, x, came_from)
         session['last_direction'] = direction_y
@@ -59,21 +60,20 @@ def play():
         y, x, came_from = move_player(game_map, direction_x, y, x, came_from)
         session['last_direction'] = direction_x
 
+    # ---- Tir (indépendant du mouvement)
     elif shoot is not None:
         wumpus_hit = shoot_arrow(game_map, shoot, y, x, came_from)
-
         final_map = game_map
         session.clear()
         session['final_map'] = final_map
-
-        if wumpus_hit == True:
+        if wumpus_hit:
             session['win'] = True
             return redirect(url_for("game.win"))
-        
         else:
             return redirect(url_for("game.game_over", cause="shoot"))
-            
-                
+
+    # BAT CHECK
+    y, x = check_bat_move(game_map, y, x)
 
     session['game_map'] = game_map
     session['y'] = y
@@ -95,7 +95,6 @@ def play():
         return redirect(url_for("game.game_over", cause="wumpus"))
 
     return render_template("game.html", map=game_map, came_from=came_from)
-
 # -------------------------
 # GAME OVER
 # -------------------------
@@ -108,7 +107,6 @@ def game_over():
         return redirect(url_for('game.index'))
 
     return render_template("game_over.html", cause=cause)
-
 
 # -------------------------
 # WIN

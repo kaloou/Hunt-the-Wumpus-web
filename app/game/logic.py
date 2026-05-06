@@ -1,5 +1,6 @@
 from app.game.constants import *
 from app.game.map_generator import generate_map, place_player
+import random, time
 
 def launch_game(difficulty):
     game_map = generate_map(difficulty)
@@ -9,8 +10,8 @@ def launch_game(difficulty):
 # -------------------------
 # CAN MOVE
 # -------------------------
-def can_move(table, y, x, direction, came_from):
-    path = table[y][x]['path']
+def can_move(map, y, x, direction, came_from):
+    path = map[y][x]['path']
 
     if path == CAVE or path == PIT:
         return True
@@ -32,7 +33,7 @@ def can_move(table, y, x, direction, came_from):
 # -------------------------
 # STEP — deplacement brut
 # -------------------------
-def step(table, y, x, direction):
+def step(y, x, direction):
     if direction == UP:
         return (y - 1) % ROW, x, DOWN
     elif direction == DOWN:
@@ -45,8 +46,8 @@ def step(table, y, x, direction):
 # -------------------------
 # STEP FOLLOW — suit les tunnels automatiquement
 # -------------------------
-def step_follow(table, y, x, direction, came_from):
-    path = table[y][x]['path']
+def step_follow(map, y, x, direction, came_from):
+    path = map[y][x]['path']
 
     if path == ULDRTUNNEL:
         if came_from == DOWN:    direction = LEFT
@@ -72,53 +73,90 @@ def step_follow(table, y, x, direction, came_from):
 # -------------------------
 # MOVE PLAYER
 # -------------------------
-def move_player(table, direction, y, x, came_from):
-    if not can_move(table, y, x, direction, came_from):
+def move_player(map, direction, y, x, came_from):
+    if not can_move(map, y, x, direction, came_from):
         return y, x, came_from
 
-    ny, nx, new_came_from = step(table, y, x, direction)
+    ny, nx, new_came_from = step(y, x, direction)
 
-    table[y][x]["entities"].remove(PLAYER)
-    table[ny][nx]["entities"].append(PLAYER)
+    map[y][x]["entities"].remove(PLAYER)
+    map[ny][nx]["entities"].append(PLAYER)
 
-    if table[ny][nx]["seen"] == 0:
-        table[ny][nx]["seen"] = 1
+    if map[ny][nx]["seen"] == 0:
+        map[ny][nx]["seen"] = 1
 
-    if table[ny][nx]["path"] == ULDRTUNNEL:
+    if map[ny][nx]["path"] == ULDRTUNNEL:
         corridor = "downright" if new_came_from in [DOWN, LEFT] else "upleft"
-        if corridor not in table[ny][nx]["corridors_seen"]:
-            table[ny][nx]["corridors_seen"].append(corridor)
+        if corridor not in map[ny][nx]["corridors_seen"]:
+            map[ny][nx]["corridors_seen"].append(corridor)
 
-    elif table[ny][nx]["path"] == URDLTUNNEL:
+    elif map[ny][nx]["path"] == URDLTUNNEL:
         corridor = "downleft" if new_came_from in [DOWN, RIGHT] else "upright"
-        if corridor not in table[ny][nx]["corridors_seen"]:
-            table[ny][nx]["corridors_seen"].append(corridor)
+        if corridor not in map[ny][nx]["corridors_seen"]:
+            map[ny][nx]["corridors_seen"].append(corridor)
+
+    
 
     return ny, nx, new_came_from
 
 # -------------------------
 # SHOOT ARROW
 # -------------------------
-def shoot_arrow(table, direction, y, x, came_from):
+def shoot_arrow(map, direction, y, x, came_from):
     print(f"position de base : y: {y}, x: {x}")
-    cy, cx, came_from = step_follow(table, y, x, direction, came_from)
+    cy, cx, came_from = step_follow(map, y, x, direction, came_from)
     
     while True:
         print(f"new position y: {cy}, x: {cx}")
-        if WUMPUS in table[cy][cx]["entities"]:
+        if WUMPUS in map[cy][cx]["entities"]:
             print("wumpus killed")
             return True
-        if table[cy][cx]["path"] == CAVE or table[cy][cx]["path"] == PIT:
+        if map[cy][cx]["path"] == CAVE or map[cy][cx]["path"] == PIT:
             print("founded a cave or a pit end of the arrow")
             return False
-        cy, cx, came_from = step_follow(table, cy, cx, direction, came_from)
+        cy, cx, came_from = step_follow(map, cy, cx, direction, came_from)
 
 # -------------------------
 # IS PLAYER ALIVE
 # -------------------------
-def is_player_alive(table, y, x):
-    if table[y][x]["path"] == PIT:
+def is_player_alive(map, y, x):
+    if map[y][x]["path"] == PIT:
         return False
-    if WUMPUS in table[y][x]["entities"]:
+    if WUMPUS in map[y][x]["entities"]:
         return False
     return True
+
+# -------------------------
+# BAT MOVE
+# -------------------------
+def check_bat_move(map, y, x):
+    if BAT not in map[y][x]["entities"]:
+        return y, x
+
+    map[y][x]["nb_visited"] += 1
+
+    if map[y][x]["nb_visited"] >= 2:
+        ny, nx = get_random_cave(map)
+
+        map[y][x]["entities"].remove(PLAYER)
+        map[y][x]["entities"].remove(BAT)
+        map[y][x]["nb_visited"] = 0
+
+        map[ny][nx]["entities"].append(PLAYER)
+        map[ny][nx]["entities"].append(BAT)
+
+        if map[ny][nx]["seen"] == 0:
+            map[ny][nx]["seen"] = 1
+        return ny, nx
+
+    return y, x
+
+
+def get_random_cave(map):
+
+    while True:
+        y = random.randint(0, ROW - 1)
+        x = random.randint(0, COL - 1)
+
+        if (map[y][x]['path'] == CAVE or map[y][x]['path'] == PIT) and PLAYER not in map[y][x]['entities'] and BAT not in map[y][x]['entities']:
+            return y, x
