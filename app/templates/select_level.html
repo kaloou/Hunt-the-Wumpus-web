@@ -1,9 +1,19 @@
 {% extends "base.html" %} {% block title %}Selection du niveau{% endblock %} {% block content %}
 
-<form action="" method="GET" class="d-flex justify-content-center align-items-center vh-100" id="levels">
+<form action="" method="GET" id="levels">
 	<button type="submit" name="level" id="up" value="1" class="btn-secondary">EASY</button>
 	<button type="submit" name="level" id="down" value="2" class="btn-secondary">NORMAL</button>
 	<button type="submit" name="level" id="left" value="3" class="btn-secondary">HARD</button>
+
+	<br />
+
+	<label for="blindfolded">Blinded Mode</label><br />
+	<input type="checkbox" id="blindfolded" name="blindfolded" value="blinded" />
+
+	<br />
+
+	<label for="Express">Express Mode</label><br />
+	<input type="checkbox" id="Express" name="Express" value="Express" />
 </form>
 
 {% endblock %}

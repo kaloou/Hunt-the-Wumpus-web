@@ -1,6 +1,6 @@
 from app.game.constants import *
 from app.game.map_generator import generate_map, place_player
-import random, time
+import random
 
 def launch_game(difficulty):
     game_map = generate_map(difficulty)

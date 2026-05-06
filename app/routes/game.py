@@ -31,6 +31,36 @@ def select_level():
     session['x'] = x
     session['came_from'] = None
     session['last_direction'] = None
+    session['level'] = level
+    session['blinded'] = "blindfolded" in request.args
+    session['express'] = "Express" in request.args
+
+    return redirect(url_for('game.play'))
+
+# -------------------------
+# REPLAY
+# -------------------------
+@game_bp.route('/replay')
+def replay():
+    level = session.get('level')
+    blinded = session.get('blinded', False)
+    express = session.get('express', False)
+
+    if level not in (EASY, NORMAL, HARD):
+        return redirect(url_for('game.index'))
+
+    game_map = generate_map(level)
+    y, x = place_player(game_map)
+
+    session.clear()
+    session['game_map'] = game_map
+    session['y'] = y
+    session['x'] = x
+    session['came_from'] = None
+    session['last_direction'] = None
+    session['level'] = level
+    session['blinded'] = blinded
+    session['express'] = express
 
     return redirect(url_for('game.play'))
 
@@ -60,11 +90,10 @@ def play():
         y, x, came_from = move_player(game_map, direction_x, y, x, came_from)
         session['last_direction'] = direction_x
 
-    # ---- Tir (indépendant du mouvement)
     elif shoot is not None:
         wumpus_hit = shoot_arrow(game_map, shoot, y, x, came_from)
         final_map = game_map
-        session.clear()
+        session.pop('game_map', None)
         session['final_map'] = final_map
         if wumpus_hit:
             session['win'] = True
@@ -75,24 +104,22 @@ def play():
     # BAT CHECK
     y, x = check_bat_move(game_map, y, x)
 
+    cell = game_map[y][x]
+
+    if cell["path"] == PIT:
+        session['final_map'] = game_map
+        session.pop('game_map', None)
+        return redirect(url_for("game.game_over", cause="pit"))
+
+    elif WUMPUS in cell["entities"]:
+        session['final_map'] = game_map
+        session.pop('game_map', None)
+        return redirect(url_for("game.game_over", cause="wumpus"))
+
     session['game_map'] = game_map
     session['y'] = y
     session['x'] = x
     session['came_from'] = came_from
-
-    cell = game_map[y][x]
-
-    if cell["path"] == PIT:
-        final_map = game_map
-        session.clear()
-        session['final_map'] = final_map
-        return redirect(url_for("game.game_over", cause="pit"))
-
-    elif WUMPUS in cell["entities"]:
-        final_map = game_map
-        session.clear()
-        session['final_map'] = final_map
-        return redirect(url_for("game.game_over", cause="wumpus"))
 
     return render_template("game.html", map=game_map, came_from=came_from)
 # -------------------------
