@@ -20,7 +20,15 @@
 		<h2>SESSION</h2>
 		<pre>Player Y = {{ session_data.y }}</pre>
 		<pre>Player X = {{ session_data.x }}</pre>
-		<pre>Came from = {{ session_data.came_from }}</pre>
+		<pre>
+Came from =
+			{% if session_data.came_from == UP %}UP
+			{% elif session_data.came_from == DOWN %}DOWN
+			{% elif session_data.came_from == LEFT %}LEFT
+			{% elif session_data.came_from == RIGHT %}RIGHT
+			{% else %}None{% endif %}
+		</pre
+		>
 	</section>
 
 	<section class="panel map-panel">
@@ -31,11 +39,20 @@
 			<tr>
 				{% for tile in row %}
 				<td class="tilee">
-					<div>P: {{ tile.path }}</div>
-					<div>E: {{ tile.entities }}</div>
-					<div>Fx: {{ tile.effects }}</div>
-					<div>Hi: {{ tile.hidden }}</div>
-					<div>Cor: {{ tile.corridors }}</div>
+					<div>
+						P: {% if tile.path == CAVE %}CAVE {% elif tile.path == ULDRTUNNEL %}ULDRTUNNEL {% elif tile.path ==
+						URDLTUNNEL %}URDLTUNNEL {% elif tile.path == PIT %}PIT {% else %}{{ tile.path }}{% endif %}
+					</div>
+					<div>
+						E: {% for entity in tile.entities %} {% if entity == PLAYER %}PLAYER {% elif entity == WUMPUS
+						%}WUMPUS {% elif entity == BAT %}BAT {% else %}{{ entity }}{% endif %} {% endfor %}
+					</div>
+					<div>
+						Fx: {% for effect in tile.effects %} {% if effect == BLOOD %}BLOOD {% elif effect == SLIME %}SLIME {%
+						else %}{{ effect }}{% endif %} {% endfor %}
+					</div>
+					<div>Seen: {{ tile.seen }}</div>
+					<div>Cor: {{ tile.corridors_seen }}</div>
 				</td>
 				{% endfor %}
 			</tr>

@@ -1,11 +1,20 @@
 from flask import Flask
 from app.config import Config
+from app.game.constants import *
 
 def create_app():
     app = Flask(__name__)
 
     #load all the config params
     app.config.from_object(Config)
+
+    @app.context_processor
+    def inject_constants():
+        return dict(
+            UP=UP, DOWN=DOWN, LEFT=LEFT, RIGHT=RIGHT,
+            CAVE=CAVE, PIT=PIT, WUMPUS=WUMPUS, PLAYER=PLAYER,
+            ULDRTUNNEL=ULDRTUNNEL, URDLTUNNEL=URDLTUNNEL,
+            BLOOD=BLOOD, SLIME=SLIME, BAT=BAT)
 
     from app.routes.game import game_bp
     from app.routes.auth import auth_bp

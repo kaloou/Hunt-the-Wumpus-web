@@ -1,3 +1,4 @@
 - faire algo floodfill
 - recheck algo blood placé chaque coin
-- use static folder in app and url path and template folder
+- s'interresser à la lib re pour le regex
+- regarder ce qui peut etre passé en post pour plus de securité cohérence , exemple la cause du game over peut etre changé par le user

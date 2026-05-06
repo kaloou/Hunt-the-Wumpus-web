@@ -1,160 +1,124 @@
-from flask import session
 from app.game.constants import *
 from app.game.map_generator import generate_map, place_player
-#from game.flood_fill_algo_test import floodFill
 
 def launch_game(difficulty):
-    """
-    Initialise une nouvelle partie : génère la map et place le joueur.
-    
-    Args:
-        difficulty (int): EASY, NORMAL ou HARD.
-    Returns:
-        tuple: (table, player_position) — la map 2D et la position (y, x) du joueur.
-    """
-    table = generate_map(difficulty)
-    player_position = place_player(table)
-    return table, player_position
-    #if !floodFill(table): return False
+    game_map = generate_map(difficulty)
+    player_position = place_player(game_map)
+    return game_map, player_position
 
-def can_move(path, came_from, direction):
-    """
-    Détermine si le joueur peut se déplacer dans une direction donnée
-    depuis une case de type path.
-    
-    Args:
-        path (int): type de la case courante (CAVE, ULDRTUNNEL, URDLTUNNEL...).
-        came_from (str|None): direction d'arrivée ("up", "down", "left", "right").
-        direction (int): direction cible (UP, DOWN, LEFT, RIGHT).
-    Returns:
-        bool: True si le mouvement est autorisé.
-    
-    Note:
-        Pour les tunnels, la direction autorisée dépend du corridor
-        emprunté (déterminé par came_from).
-    """
-    if path == CAVE:
+# -------------------------
+# CAN MOVE
+# -------------------------
+def can_move(table, y, x, direction, came_from):
+    path = table[y][x]['path']
+
+    if path == CAVE or path == PIT:
         return True
-    if path == PIT:
-        return False 
-    if path in [3, 4]:
-        if came_from is None:
-            return True
-        if path == 3:
-            corridor = "upleft" if came_from in ["right", "up"] else "downright"
-        else:
-            corridor = "upright" if came_from in ["left", "up"] else "downleft"
-        return direction in CORRIDOR_ALLOWED[corridor]
+
+    if path == ULDRTUNNEL:
+        if came_from == RIGHT or came_from == UP:
+            return direction == UP or direction == RIGHT
+        if came_from == LEFT or came_from == DOWN:
+            return direction == DOWN or direction == LEFT
+
+    if path == URDLTUNNEL:
+        if came_from == LEFT or came_from == UP:
+            return direction == UP or direction == LEFT
+        if came_from == RIGHT or came_from == DOWN:
+            return direction == DOWN or direction == RIGHT
+
     return True
 
-def move_player(table, direction, player_position_y, player_position_x, came_from):
-    """
-    Déplace le joueur dans la direction donnée, met à jour la map
-    et marque la nouvelle case comme vue. Enregistre le corridor emprunté
-    si la case est un tunnel.
-    
-    Args:
-        table (list[list[dict]]): la map 2D.
-        direction (int): UP, DOWN, LEFT ou RIGHT.
-        player_position_y (int): ligne actuelle du joueur.
-        player_position_x (int): colonne actuelle du joueur.
-        came_from (str): direction d'arrivée sur la case courante.
-    Returns:
-        tuple: (y, x) nouvelle position du joueur.
-    """
+# -------------------------
+# STEP — deplacement brut
+# -------------------------
+def step(table, y, x, direction):
     if direction == UP:
-        y = (player_position_y - 1) % ROW
-        x = player_position_x
+        return (y - 1) % ROW, x, DOWN
     elif direction == DOWN:
-        y = (player_position_y + 1) % ROW
-        x = player_position_x
+        return (y + 1) % ROW, x, UP
     elif direction == LEFT:
-        y = player_position_y
-        x = (player_position_x - 1) % COL
+        return y, (x - 1) % COL, RIGHT
     elif direction == RIGHT:
-        y = player_position_y
-        x = (player_position_x + 1) % COL
+        return y, (x + 1) % COL, LEFT
 
-    table[player_position_y][player_position_x]["entities"].remove(PLAYER)
-    table[y][x]["entities"].append(PLAYER)
+# -------------------------
+# STEP FOLLOW — suit les tunnels automatiquement
+# -------------------------
+def step_follow(table, y, x, direction, came_from):
+    path = table[y][x]['path']
 
+    if path == ULDRTUNNEL:
+        if came_from == DOWN:    direction = LEFT
+        elif came_from == RIGHT: direction = UP
+        elif came_from == UP:    direction = RIGHT
+        elif came_from == LEFT:  direction = DOWN
 
-    if table[y][x]["seen"] == 0:
-        table[y][x]["seen"] = 1
+    elif path == URDLTUNNEL:
+        if came_from == DOWN:    direction = RIGHT
+        elif came_from == LEFT:  direction = UP
+        elif came_from == UP:    direction = LEFT
+        elif came_from == RIGHT: direction = DOWN
 
-    if table[y][x]["path"] == 3:
-        corridor = "upleft" if came_from in ["right", "up"] else "downright"
-        if corridor not in table[y][x]["corridors_seen"]:
-            table[y][x]["corridors_seen"].append(corridor)
-
-    elif table[y][x]["path"] == 4:
-        corridor = "upright" if came_from in ["left", "up"] else "downleft"
-        if corridor not in table[y][x]["corridors_seen"]:
-            table[y][x]["corridors_seen"].append(corridor)
-
-    return y, x
-
-def is_player_alive(table, player_position_y, player_position_x):
-    """
-    Vérifie si le joueur est en vie sur sa case courante.
-    
-    Args:
-        table (list[list[dict]]): la map 2D.
-        player_position_y (int): ligne du joueur.
-        player_position_x (int): colonne du joueur.
-    Returns:
-        bool: False si le joueur est sur un PIT ou avec le WUMPUS, True sinon.
-    
-    Bug:
-        La vérification du Wumpus compare la liste entities à l'entier WUMPUS.
-        Corriger avec : WUMPUS in table[y][x]["entities"]
-    """
-    if table[player_position_y][player_position_x]["path"] == PIT:
-        return False
-    elif table[player_position_y][player_position_x]["entities"] == WUMPUS:
-        return False
-    else:
-        return True
-
-def shoot_arrow(table, direction, player_position_y, player_position_x):
-    """
-    Tire une flèche dans la direction donnée depuis la position du joueur.
-    Vérifie si la case adjacente contient le Wumpus.
-    
-    Args:
-        table (list[list[dict]]): la map 2D.
-        direction (int): UP, DOWN, LEFT ou RIGHT.
-        player_position_y (int): ligne du joueur.
-        player_position_x (int): colonne du joueur.
-    Returns:
-        bool: True si le Wumpus est touché, False sinon.
-    
-    Bug:
-        Accès par index entier (table[y][x][3]) au lieu de clé dict.
-        Corriger avec : WUMPUS in table[y][x]["entities"]
-    """
-    # --- UP
     if direction == UP:
-        y = (player_position_y - 1) % ROW
-        x = player_position_x
-
-    # --- DOWN
+        return (y - 1) % ROW, x, DOWN
     elif direction == DOWN:
-        y = (player_position_y + 1) % ROW
-        x = player_position_x
-
-    # --- LEFT
+        return (y + 1) % ROW, x, UP
     elif direction == LEFT:
-        y = player_position_y
-        x = (player_position_x - 1) % COL
-
-    # --- RIGHT
+        return y, (x - 1) % COL, RIGHT
     elif direction == RIGHT:
-        y = player_position_y
-        x = (player_position_x + 1) % COL
+        return y, (x + 1) % COL, LEFT
 
-    if table[y][x][3] == WUMPUS:
-        return True
-    else:
-        return False    
+# -------------------------
+# MOVE PLAYER
+# -------------------------
+def move_player(table, direction, y, x, came_from):
+    if not can_move(table, y, x, direction, came_from):
+        return y, x, came_from
+
+    ny, nx, new_came_from = step(table, y, x, direction)
+
+    table[y][x]["entities"].remove(PLAYER)
+    table[ny][nx]["entities"].append(PLAYER)
+
+    if table[ny][nx]["seen"] == 0:
+        table[ny][nx]["seen"] = 1
+
+    if table[ny][nx]["path"] == ULDRTUNNEL:
+        corridor = "downright" if new_came_from in [DOWN, LEFT] else "upleft"
+        if corridor not in table[ny][nx]["corridors_seen"]:
+            table[ny][nx]["corridors_seen"].append(corridor)
+
+    elif table[ny][nx]["path"] == URDLTUNNEL:
+        corridor = "downleft" if new_came_from in [DOWN, RIGHT] else "upright"
+        if corridor not in table[ny][nx]["corridors_seen"]:
+            table[ny][nx]["corridors_seen"].append(corridor)
+
+    return ny, nx, new_came_from
+
+# -------------------------
+# SHOOT ARROW
+# -------------------------
+def shoot_arrow(table, direction, y, x, came_from):
+    print(f"position de base : y: {y}, x: {x}")
+    cy, cx, came_from = step_follow(table, y, x, direction, came_from)
     
+    while True:
+        print(f"new position y: {cy}, x: {cx}")
+        if WUMPUS in table[cy][cx]["entities"]:
+            print("wumpus killed")
+            return True
+        if table[cy][cx]["path"] == CAVE or table[cy][cx]["path"] == PIT:
+            print("founded a cave or a pit end of the arrow")
+            return False
+        cy, cx, came_from = step_follow(table, cy, cx, direction, came_from)
+
+# -------------------------
+# IS PLAYER ALIVE
+# -------------------------
+def is_player_alive(table, y, x):
+    if table[y][x]["path"] == PIT:
+        return False
+    if WUMPUS in table[y][x]["entities"]:
+        return False
+    return True

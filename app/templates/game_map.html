@@ -1,34 +1,34 @@
 <table>
-	{% for row in table %}
+	{% for row in map %}
 	<tr>
 		{% for tile in row %}
 		<td>
 			<div class="tile">
-				{% if tile["seen"] == 1 %} {% if tile["path"] == 1 %}
+				{% if tile["seen"] == 1 %} {% if tile["path"] == CAVE %}
 				<div class="layer base center"></div>
 
-				{% elif tile["path"] == 3 or tile["path"] == 4 %} {% for corr in tile["corridors_seen"] %}
+				{% elif tile["path"] == ULDRTUNNEL or tile["path"] == URDLTUNNEL %} {% for corr in tile["corridors_seen"] %}
 				<div class="layer base {{ corr }}"></div>
-				{% endfor %} {% elif tile["path"] == 6 %}
+				{% endfor %} {% elif tile["path"] == PIT %}
 				<div class="layer base pit"></div>
-				{% endif %} {% if 7 in tile["entities"] %}
+				{% endif %} {% if BAT in tile["entities"] %}
 				<div class="layer entity bat"></div>
-				{% elif 8 in tile["entities"] %}
+				{% elif WUMPUS in tile["entities"] %}
 				<div class="layer entity wumpus"></div>
-				{% endif %} {% if 9 in tile["entities"] %} {% if tile["path"] == 3 %} {% if came_from == "up" or came_from ==
-				"right" %}
-				<div class="layer entity player topright"></div>
-				{% else %}
+				{% endif %} {% if PLAYER in tile["entities"] %} {% if tile["path"] == ULDRTUNNEL %} {% if came_from == DOWN
+				or came_from == LEFT %}
 				<div class="layer entity player bottomleft"></div>
-				{% endif %} {% elif tile["path"] == 4 %} {% if came_from == "up" or came_from == "left" %}
-				<div class="layer entity player topleft"></div>
 				{% else %}
+				<div class="layer entity player topright"></div>
+				{% endif %} {% elif tile["path"] == URDLTUNNEL %} {% if came_from == DOWN or came_from == RIGHT %}
 				<div class="layer entity player bottomright"></div>
+				{% else %}
+				<div class="layer entity player topleft"></div>
 				{% endif %} {% else %}
 				<div class="layer entity player centered"></div>
-				{% endif %} {% endif %} {% if 11 in tile["effects"] %}
+				{% endif %} {% endif %} {% if SLIME in tile["effects"] %}
 				<div class="layer overlay slime"></div>
-				{% endif %} {% if 10 in tile["effects"] %}
+				{% endif %} {% if BLOOD in tile["effects"] %}
 				<div class="layer overlay blood"></div>
 				{% endif %} {% else %}
 				<div class="layer hidden"></div>

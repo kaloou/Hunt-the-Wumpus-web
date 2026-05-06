@@ -1,9 +1,16 @@
-{% extends "base.html" %} {% block title %}GAME OVER{% endblock %} {% block content %}
-<h1>Vous avez perdu</h1>
+{% extends "base.html" %} {% block title %}GAME OVER{% endblock %} {% block content %} {%if cause == "pit"%}
+<h1>Vous êtes tombés dans le slime</h1>
+{%elif cause == "wumpus" %}
+<h1>Le wumpus vous à dévoré</h1>
+
+{%elif cause == "shoot" %}
+<h1>Vous Avez loupé votre cible</h1>
+{%endif%}
 
 <form action="" method="GET">
-	<button type="submit" value="1" name="replay">Rejouer</button>
-	<button type="submit" value="2" name="replay">Revenir au menu principal</button>
-	<button type="submit" value="3" name="replay">Visualiser la map</button>
+	<a href="{{ url_for('game.select_level') }}">Rejouer</button>
+	<a href="{{ url_for('game.index') }}">Revenir au menu principal</a>
+	<a href="{{ url_for('game.map_view') }}">Visualiser la map</a>
 </form>
 {% endblock %}
+@

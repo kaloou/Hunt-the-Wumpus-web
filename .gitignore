@@ -3,3 +3,9 @@ venv/
 .DS_Store
 .env
 *.db
+.idea/
+todo.md
+.bash_logout
+.bashrc
+.profile
+py07.wsgi

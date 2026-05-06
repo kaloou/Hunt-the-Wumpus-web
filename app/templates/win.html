@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block title %}WINNER{% endblock %} {% block content %}
+<h1>Vous avez Gagné ! Le Wumpus à été tué/h1>
+
+
+<form action="" method="GET">
+	<a href="{{ url_for('game.select_level') }}">Rejouer</button>
+	<a href="{{ url_for('game.index') }}">Revenir au menu principal</a>
+	<a href="{{ url_for('game.map_view') }}">Visualiser la map</a>
+</form>
+{% endblock %}
+@

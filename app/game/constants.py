@@ -41,11 +41,3 @@ LEVELS = {
         "corridors_range": (24, 28)
     }
 }
-
-#===============
-CORRIDOR_ALLOWED = {
-    "upleft":    [UP, RIGHT],
-    "downright": [DOWN, LEFT],
-    "upright":   [UP, LEFT],
-    "downleft":  [DOWN, RIGHT],
-}

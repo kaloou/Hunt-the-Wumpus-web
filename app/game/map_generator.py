@@ -10,48 +10,82 @@ def new_cell():
         "effects": [],
         "entities": [],
         "seen": 0,
+        "nb_visited": 0,
         "corridors_seen": []
     }
 #corridors_seen": ["upleft","downright", "upright", "downleft"]
 
-def place_pit(table, nb_pits):
+def place_pit(map, nb_pits):
+    """
+    Place nb_pits puits aléatoirement sur des cases CAVE de la map.
+    
+    Args:
+        map (list[list[dict]]): la map 2D.
+        nb_pits (int): nombre de puits à placer.
+    Returns:
+        list[tuple]: liste des positions (y, x) des puits placés.
+    """
     poss = []
     cpt = nb_pits
     while cpt > 0:
         y = random.randint(0, ROW - 1)
         x = random.randint(0, COL - 1)
 
-        if table[y][x]['path'] != CAVE:
+        if map[y][x]['path'] != CAVE:
             continue
 
-        table[y][x]['path'] = PIT
+        map[y][x]['path'] = PIT
         poss.append((y, x))
         cpt -= 1
 
     return poss
 
-def place_wumpus(table):
+def place_wumpus(map):
+    """
+    Place le Wumpus sur une case CAVE ou PIT ne contenant pas le joueur.
+    Boucle jusqu'à trouver une position valide.
+    
+    Args:
+        map (list[list[dict]]): la map 2D.
+    Returns:
+        tuple: (y, x) position du Wumpus.
+    """
     while True:
         y = random.randint(0, ROW - 1)
         x = random.randint(0, COL - 1)
 
-        if (table[y][x]['path'] == CAVE or table[y][x]['path'] == PIT) and PLAYER not in table[y][x]['entities']:
-            table[y][x]['entities'].append(WUMPUS)
+        if (map[y][x]['path'] == CAVE or map[y][x]['path'] == PIT) and PLAYER not in map[y][x]['entities']:
+            map[y][x]['entities'].append(WUMPUS)
             return y, x
 
-def place_bat(table, nb_bats):
+def place_bat(map, nb_bats):
+    """
+    Place nb_bats chauves-souris aléatoirement sur des cases CAVE.
+    
+    Args:
+        map (list[list[dict]]): la map 2D.
+        nb_bats (int): nombre de chauves-souris à placer.
+    """
     cpt = nb_bats
     while cpt > 0:
         y = random.randint(0, ROW - 1)
         x = random.randint(0, COL - 1)
 
-        if table[y][x]['path'] != CAVE:
+        if map[y][x]['path'] != CAVE:
             continue
 
-        table[y][x]['entities'].append(BAT)
+        map[y][x]['entities'].append(BAT)
         cpt -= 1
 
-def place_slime(table, pit_poss):
+def place_slime(map, pit_poss):
+    """
+    Place l'effet SLIME sur les 4 cases CAVE adjacentes à chaque puits.
+    Suit les tunnels directionnels pour trouver les voisins réels.
+    
+    Args:
+        map (list[list[dict]]): la map 2D.
+        pit_poss (list[tuple]): positions (y, x) des puits.
+    """
     for pit in pit_poss:
         base_y = pit[0]
         base_x = pit[1]
@@ -64,27 +98,27 @@ def place_slime(table, pit_poss):
 
         while cpt_slime < 4:
 
-            if table[y][x]['path'] == ULDRTUNNEL:
+            if map[y][x]['path'] == ULDRTUNNEL:
                 if direction == UP: direction = LEFT
                 elif direction == DOWN: direction = RIGHT
                 elif direction == LEFT: direction = UP
                 elif direction == RIGHT: direction = DOWN
 
-            elif table[y][x]['path'] == URDLTUNNEL:
+            elif map[y][x]['path'] == URDLTUNNEL:
                 if direction == UP: direction = RIGHT
                 elif direction == DOWN: direction = LEFT
                 elif direction == LEFT: direction = DOWN
                 elif direction == RIGHT: direction = UP
 
-            elif table[y][x]['path'] == CAVE:
-                table[y][x]['effects'].append(SLIME)
+            elif map[y][x]['path'] == CAVE:
+                map[y][x]['effects'].append(SLIME)
                 cpt_slime += 1
 
                 if cpt_slime == 1: direction, y, x = DOWN, base_y, base_x
                 elif cpt_slime == 2: direction, y, x = LEFT, base_y, base_x
                 elif cpt_slime == 3: direction, y, x = RIGHT, base_y, base_x
 
-            elif table[y][x]['path'] == PIT:
+            elif map[y][x]['path'] == PIT:
                 cpt_slime += 1
 
             if direction == UP: y = (y - 1) % ROW
@@ -92,7 +126,16 @@ def place_slime(table, pit_poss):
             elif direction == LEFT: x = (x - 1) % COL
             elif direction == RIGHT: x = (x + 1) % COL
 
-def place_blood(table, base_y, base_x):
+def place_blood(map, base_y, base_x):
+    """
+    Place l'effet BLOOD sur les cases CAVE autour du Wumpus (jusqu'à 16 cases).
+    Parcourt les 4 directions en suivant les tunnels directionnels.
+    
+    Args:
+        map (list[list[dict]]): la map 2D.
+        base_y (int): ligne du Wumpus.
+        base_x (int): colonne du Wumpus.
+    """
     y = base_y
     x = base_x
     
@@ -101,7 +144,7 @@ def place_blood(table, base_y, base_x):
     y = (y - 1) % ROW
     while cpt_blood < 24:
         
-        if table[y][x]['path'] == PIT or WUMPUS in table[y][x]['entities']:
+        if map[y][x]['path'] == PIT or WUMPUS in map[y][x]['entities']:
             if direction == UP:
                 y = (y - 1) % ROW
             elif direction == DOWN:
@@ -111,7 +154,7 @@ def place_blood(table, base_y, base_x):
             elif direction == RIGHT:
                 x = (x + 1) % COL
 
-        elif table[y][x]['path'] == ULDRTUNNEL:
+        elif map[y][x]['path'] == ULDRTUNNEL:
             if direction == UP:
                 direction = LEFT
                 x = (x - 1) % COL
@@ -125,7 +168,7 @@ def place_blood(table, base_y, base_x):
                 direction = DOWN
                 y = (y + 1) % ROW
 
-        elif table[y][x]['path'] == URDLTUNNEL:
+        elif map[y][x]['path'] == URDLTUNNEL:
             if direction == UP:
                 direction = RIGHT
                 x = (x + 1) % COL
@@ -139,8 +182,8 @@ def place_blood(table, base_y, base_x):
                 direction = UP
                 y = (y - 1) % ROW
         
-        elif table[y][x]['path'] == CAVE:
-            table[y][x]['effects'].append(BLOOD)
+        elif map[y][x]['path'] == CAVE:
+            map[y][x]['effects'].append(BLOOD)
             cpt_blood += 1
 
             # --- UP
@@ -291,40 +334,74 @@ def place_blood(table, base_y, base_x):
             elif direction == RIGHT:
                 x = (x + 1) % COL
 
-
-def place_player(table):
+def place_player(map):
+    """
+    Place le joueur sur une case CAVE libre, sans entité ni effet SLIME/BLOOD.
+    Marque la case comme vue (seen=1).
+    
+    Args:
+        map (list[list[dict]]): la map 2D.
+    Returns:
+        tuple: (y, x) position du joueur.
+    """
     while True:
         y = random.randint(0, ROW - 1)
         x = random.randint(0, COL - 1)
 
-        if table[y][x]['path'] != CAVE: continue
-        if len(table[y][x]['entities']) != 0: continue
-        if SLIME in table[y][x]['effects'] or BLOOD in table[y][x]['effects']:continue
+        if map[y][x]['path'] != CAVE: continue
+        if len(map[y][x]['entities']) != 0: continue
+        if SLIME in map[y][x]['effects'] or BLOOD in map[y][x]['effects']:continue
         break
 
-    table[y][x]['entities'].append(PLAYER)
-    table[y][x]['seen'] = 1
+    map[y][x]['entities'].append(PLAYER)
+    map[y][x]['seen'] = 1
     return y, x
 
-def can_tunnel_be_placed(table, tunnel, x, y):
+def can_tunnel_be_placed(map, tunnel, x, y):
+    """
+    Vérifie si un tunnel directionnel peut être placé en (y, x)
+    sans créer une configuration invalide avec les tunnels voisins.
+    Exemple une boucle complète.
+    
+    Args:
+        map (list[list[dict]]): la map 2D (partiellement remplie).
+        tunnel (int): ULDRTUNNEL ou URDLTUNNEL.
+        x (int): colonne cible.
+        y (int): ligne cible.
+    Returns:
+        bool: True si le tunnel peut être placé, False sinon.
+    """
     if tunnel == ULDRTUNNEL:
-        if table[y][(x + 1) % COL]['path'] == URDLTUNNEL and table[(y + 1) % ROW][(x + 1) % COL]['path'] == ULDRTUNNEL and table[(y - 1) % ROW][x]['path'] == URDLTUNNEL:
+        if map[y][(x + 1) % COL]['path'] == URDLTUNNEL and map[(y + 1) % ROW][(x + 1) % COL]['path'] == ULDRTUNNEL and map[(y - 1) % ROW][x]['path'] == URDLTUNNEL:
             return False
 
     elif tunnel == URDLTUNNEL:
-        if table[y][(x - 1) % COL]['path'] == ULDRTUNNEL and table[(y - 1) % ROW][(x - 1) % COL]['path'] == URDLTUNNEL and table[(y - 1) % ROW][x]['path'] == ULDRTUNNEL:
+        if map[y][(x - 1) % COL]['path'] == ULDRTUNNEL and map[(y - 1) % ROW][(x - 1) % COL]['path'] == URDLTUNNEL and map[(y - 1) % ROW][x]['path'] == ULDRTUNNEL:
             return False
         
     return True
 
-def get_path_cell(cells,table,x,y):
+def get_path_cell(cells,map,x,y):
+    """
+    Tire aléatoirement un type de cellule depuis la liste cells et retourne
+    le path correspondant. Si un tunnel est invalide à cette position, bascule
+    sur l'autre type de tunnel.
+    
+    Args:
+        cells (list[int]): liste des types restants à placer (modifiée en place).
+        map (list[list[dict]]): la map 2D (partiellement remplie).
+        x (int): colonne cible.
+        y (int): ligne cible.
+    Returns:
+        int: constante CAVE, ULDRTUNNEL ou URDLTUNNEL.
+    """
     i = random.randint(0, len(cells) - 1)
     cell = cells.pop(i)
     if cell == 1:
         return CAVE
     elif cell == 2:
-        rand = random.randint(ULDRTUNNEL, URDLTUNNEL) # 3,4
-        if can_tunnel_be_placed(table,rand,x,y):
+        rand = random.randint(ULDRTUNNEL, URDLTUNNEL)
+        if can_tunnel_be_placed(map,rand,x,y):
             return rand
         else:
             if rand == ULDRTUNNEL :
@@ -333,7 +410,15 @@ def get_path_cell(cells,table,x,y):
                 return ULDRTUNNEL
 
 def generate_map(difficulty):
-
+    """
+    Génère une map complète selon la difficulté donnée.
+    Place les caves, tunnels, puits, Wumpus, chauves-souris, slime et blood.
+    
+    Args:
+        difficulty (int): EASY, NORMAL ou HARD.
+    Returns:
+        list[list[dict]]: la map 2D complète avec tous les éléments placés.
+    """
     nb_pits = 2
     if (difficulty == EASY):
         nb_tunnels = random.randint(8, 15)
@@ -356,7 +441,7 @@ def generate_map(difficulty):
         cells[i] = TUNNEL
     #print(cells)
 
-    table = [
+    map = [
         [
             new_cell() for _ in range(COL)
         ]for _ in range(ROW)
@@ -365,20 +450,26 @@ def generate_map(difficulty):
     # Fill the map with only caves and tunnels
     for i in range(ROW):
         for j in range(COL):
-            table[i][j]["path"] = get_path_cell(cells, table, j, i)
+            map[i][j]["path"] = get_path_cell(cells, map, j, i)
 
     # Place the elements of the game
-    pit_poss = place_pit(table, nb_pits)
-    wump_y, wump_x = place_wumpus(table)
-    place_bat(table, nb_bats)
-    place_slime(table, pit_poss)
-    place_blood(table, wump_y, wump_x)
+    pit_poss = place_pit(map, nb_pits)
+    wump_y, wump_x = place_wumpus(map)
+    place_bat(map, nb_bats)
+    place_slime(map, pit_poss)
+    place_blood(map, wump_y, wump_x)
     
-    return table
+    return map
 
 def create_menu_map():
-
-    menu_table = [
+    """
+    Génère une map vide remplie uniquement de cases CAVE.
+    Utilisée pour l'affichage du menu principal.
+    
+    Returns:
+        list[list[dict]]: la map 2D avec uniquement des CAVE.
+    """
+    menu_map = [
         [
             new_cell() for _ in range(COL)
         ]for _ in range(ROW)
@@ -387,9 +478,9 @@ def create_menu_map():
     # Fill the map with only caves and tunnels
     for i in range(ROW):
         for j in range(COL):
-            menu_table[i][j]["path"] = CAVE
+            menu_map[i][j]["path"] = CAVE
 
-    return menu_table
+    return menu_map
 
 def ensure_accessibility():
     #use flood fill to check

@@ -1,0 +1,9 @@
+{% extends "base.html" %} {% block title %}Selection du niveau{% endblock %} {% block content %}
+
+<form action="" method="GET" class="d-flex justify-content-center align-items-center vh-100" id="levels">
+	<button type="submit" name="level" id="up" value="1" class="btn-secondary">EASY</button>
+	<button type="submit" name="level" id="down" value="2" class="btn-secondary">NORMAL</button>
+	<button type="submit" name="level" id="left" value="3" class="btn-secondary">HARD</button>
+</form>
+
+{% endblock %}
