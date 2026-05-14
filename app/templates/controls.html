@@ -1,11 +1,39 @@
-<form action="" method="GET" class="" id="controls">
-	<button type="submit" name="direction_y" id="up" value="1">Up</button>
-	<button type="submit" name="direction_y" id="down" value="-1">Down</button>
-	<button type="submit" name="direction_x" id="left" value="-2">Left</button>
-	<button type="submit" name="direction_x" id="right" value="2">Right</button>
-	<br />
-	<button type="submit" name="shoot" value="1">Shoot Up</button>
-	<button type="submit" name="shoot" value="-1">Shoot Down</button>
-	<button type="submit" name="shoot" value="2">Shoot Right</button>
-	<button type="submit" name="shoot" value="-2">Shoot Left</button>
+<form id="move-form" action="" method="GET">
+  <div id="controls-container" style="position: relative;">
+
+    <!-- D-pad (movement mode) -->
+    <div id="move-controls" class="controls-container">
+      <div class="dpad">
+        <div></div>
+        <button type="submit" name="direction_y" id="up"    value="1"  class="dpad-btn">↑</button>
+        <div></div>
+        <button type="submit" name="direction_x" id="left"  value="-2" class="dpad-btn">←</button>
+        <div class="dpad-center"></div>
+        <button type="submit" name="direction_x" id="right" value="2"  class="dpad-btn">→</button>
+        <div></div>
+        <button type="submit" name="direction_y" id="down"  value="-1" class="dpad-btn">↓</button>
+        <div></div>
+      </div>
+      <button type="button" class="shoot-btn-large"
+              onclick="document.getElementById('controls-container').classList.add('aiming-mode')">
+        Shoot
+      </button>
+    </div>
+
+    <!-- Aim grid (aim mode) -->
+    <div id="aim-controls" class="dpad">
+      <div></div>
+      <button type="submit" name="shoot" id="shoot-up"    value="1"  class="aim-btn">↑</button>
+      <div></div>
+      <button type="submit" name="shoot" id="shoot-left"  value="-2" class="aim-btn">←</button>
+      <button type="button" class="dpad-btn" style="background:rgba(196,74,58,.12); font-size:12px;"
+              onclick="document.getElementById('controls-container').classList.remove('aiming-mode')">✕</button>
+      <button type="submit" name="shoot" id="shoot-right" value="2"  class="aim-btn">→</button>
+      <div></div>
+      <button type="submit" name="shoot" id="shoot-down"  value="-1" class="aim-btn">↓</button>
+      <div></div>
+    </div>
+
+    <span class="aim-hint">Choose direction — <kbd class="kbd">Esc</kbd> to cancel</span>
+  </div>
 </form>

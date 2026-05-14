@@ -1,2 +1,115 @@
-{% extends "base.html" %} {% block title %}En jeu{% endblock %} {% block content %} {% include 'controls.html' %} {% include
-'game_map.html' %} {% endblock %}
+{% extends "base.html" %}
+{% block title %}En jeu{% endblock %}
+{% block content %}
+<div class="screen-game app">
+  <div class="cave-backdrop"></div>
+
+  <!-- Left: HUD + map -->
+  <div class="game-left">
+
+    <!-- HUD strip -->
+    <div class="hud-strip">
+      {% if level == 1 %}
+        <span class="difficulty-badge">Easy</span>
+      {% elif level == 2 %}
+        <span class="difficulty-badge">Normal</span>
+      {% else %}
+        <span class="difficulty-badge">Hard</span>
+      {% endif %}
+
+      {% if blinded %}
+        <span class="warn-hud warn-pulse">⊘ Blinded</span>
+      {% endif %}
+
+      {% if session.get('username') %}
+        <span class="label" style="color:rgba(241,230,205,.45); margin-left:4px;">{{ session['username'] }}</span>
+      {% endif %}
+
+      <div class="grow"></div>
+
+      <div class="stat-chip">
+        <span class="chip-label">Moves</span>
+        <span class="chip-value mono">{{ moves }}</span>
+      </div>
+      <div class="stat-chip">
+        <span class="chip-label">Time</span>
+        <span class="chip-value mono" id="timer" data-elapsed="{{ elapsed }}">{{ elapsed }}s</span>
+      </div>
+
+      <a href="{{ url_for('game.index') }}" class="btn btn-ghost btn-sm"
+         style="padding:5px 10px; font-size:11px;"
+         onclick="return confirm('Quitter la partie ?')">✕ Menu</a>
+    </div>
+
+    <!-- Map (height-constrained to avoid cutoff) -->
+    <div class="map-ratio-box">
+      <div class="map-frame">
+        <div class="torchlight flicker"></div>
+        {% include 'game_map.html' %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right: info panel -->
+  <div class="game-right">
+    <div class="panel col gap-4" style="padding: 20px; flex: 1; overflow-y: auto;">
+
+      <!-- Arrow status -->
+      <div class="row gap-2" style="align-items: center;">
+        <span class="label" style="color: var(--ink-2);">Arrow</span>
+        <span style="font-size: 22px; color: {% if arrows > 0 %}var(--accent){% else %}var(--ink-3){% endif %};">
+          {% if arrows > 0 %}↑{% else %}×{% endif %}
+        </span>
+        <span class="label" style="color: var(--ink-3);">{{ arrows }}/1</span>
+      </div>
+      <div class="divider"></div>
+
+      <!-- Senses -->
+      <div class="col gap-2">
+        <span class="label" style="color: var(--ink-2); margin-bottom: 2px;">Senses</span>
+
+        <div class="sense-row {% if 'smell' in senses %}active{% endif %}">
+          <div class="sense-icon" style="background:rgba(196,74,58,.15); color:var(--accent);">🩸</div>
+          <div class="col gap-1">
+            <span style="font: 600 12px/1 var(--font-ui); color: var(--ink);">Blood smell</span>
+            <span class="sense-hint">Wumpus is nearby</span>
+          </div>
+        </div>
+
+        <div class="sense-row {% if 'draft' in senses %}active{% endif %}">
+          <div class="sense-icon" style="background:rgba(100,160,100,.15); color:#5a9a5a;">💨</div>
+          <div class="col gap-1">
+            <span style="font: 600 12px/1 var(--font-ui); color: var(--ink);">Cold draft</span>
+            <span class="sense-hint">A pit is nearby</span>
+          </div>
+        </div>
+
+        <div class="sense-row {% if 'squeak' in senses %}active{% endif %}">
+          <div class="sense-icon" style="background:rgba(80,100,180,.15); color:#6080c0;">🦇</div>
+          <div class="col gap-1">
+            <span style="font: 600 12px/1 var(--font-ui); color: var(--ink);">Squeaking</span>
+            <span class="sense-hint">Bats are nearby</span>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+
+      <!-- Controls -->
+      {% include 'controls.html' %}
+
+      <!-- Keyboard hints -->
+      <div class="col gap-1" style="margin-top: 4px;">
+        <span class="label" style="color: var(--ink-3); margin-bottom: 4px;">Keyboard</span>
+        <span style="font: 400 11px/1.6 var(--font-mono); color: var(--ink-3);">
+          <kbd class="kbd">↑↓←→</kbd> / <kbd class="kbd">WASD</kbd> move<br>
+          <kbd class="kbd">Space</kbd> / <kbd class="kbd">Shift</kbd> aim<br>
+          <kbd class="kbd">Esc</kbd> cancel aim
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

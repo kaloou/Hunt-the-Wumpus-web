@@ -1,3 +1,79 @@
-{% extends "base.html" %} {% block title %}Se connecter{% endblock %} {% block content %}
-<h1>Bienvenue sur l'écran de connexion</h1>
+{% extends "base.html" %}
+{% block title %}{% if mode == 'register' %}Créer un compte{% else %}Se connecter{% endif %}{% endblock %}
+{% block content %}
+<div class="app" style="align-items:center; justify-content:center; background:var(--bg);">
+  <div class="cave-backdrop"></div>
+
+  <div class="panel col gap-5" style="width:420px; max-width:calc(100vw - 48px); padding:36px; position:relative; z-index:2;">
+
+    <!-- Wordmark -->
+    <div class="wordmark display" style="font-size:26px; text-align:center;">
+      Hunt the <em>Wumpus</em>
+    </div>
+
+    <!-- Tabs -->
+    <div class="row gap-2">
+      <a href="{{ url_for('auth.login') }}"
+         class="btn {% if mode == 'login' %}btn-primary{% else %}btn-ghost{% endif %} btn-sm"
+         style="flex:1; justify-content:center;">Connexion</a>
+      <a href="{{ url_for('auth.register') }}"
+         class="btn {% if mode == 'register' %}btn-primary{% else %}btn-ghost{% endif %} btn-sm"
+         style="flex:1; justify-content:center;">Inscription</a>
+    </div>
+
+    <!-- Error message -->
+    {% if error %}
+    <div style="padding:10px 14px; background:rgba(196,74,58,.12); border:1px solid var(--accent);
+                border-radius:6px; font:400 13px/1.35 var(--font-ui); color:var(--accent);">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Login form -->
+    {% if mode == 'login' %}
+    <form action="{{ url_for('auth.login') }}" method="POST" class="col gap-4">
+      <div class="col gap-1">
+        <label class="field-label" for="username">Nom d'utilisateur</label>
+        <input class="field" type="text" id="username" name="username"
+               placeholder="hunter_01" autocomplete="username" required />
+      </div>
+      <div class="col gap-1">
+        <label class="field-label" for="password">Mot de passe</label>
+        <input class="field" type="password" id="password" name="password"
+               placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg" style="margin-top:4px;">
+        ↳ Entrer dans la grotte
+      </button>
+    </form>
+
+    <!-- Register form -->
+    {% else %}
+    <form action="{{ url_for('auth.register') }}" method="POST" class="col gap-4">
+      <div class="col gap-1">
+        <label class="field-label" for="username">Nom d'utilisateur</label>
+        <input class="field" type="text" id="username" name="username"
+               placeholder="hunter_01" autocomplete="username" required />
+      </div>
+      <div class="col gap-1">
+        <label class="field-label" for="password">Mot de passe</label>
+        <input class="field" type="password" id="password" name="password"
+               placeholder="••••••••" autocomplete="new-password" required />
+      </div>
+      <div class="col gap-1">
+        <label class="field-label" for="confirm">Confirmer le mot de passe</label>
+        <input class="field" type="password" id="confirm" name="confirm"
+               placeholder="••••••••" autocomplete="new-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg" style="margin-top:4px;">
+        Créer le compte
+      </button>
+    </form>
+    {% endif %}
+
+    <div class="divider"></div>
+    <a href="{{ url_for('game.index') }}" class="btn btn-ghost btn-sm"
+       style="text-align:center; justify-content:center;">← Revenir au menu</a>
+  </div>
+</div>
 {% endblock %}

@@ -4,8 +4,6 @@ from app.game.constants import *
 
 def create_app():
     app = Flask(__name__)
-
-    #load all the config params
     app.config.from_object(Config)
 
     @app.context_processor
@@ -24,5 +22,12 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(leaderboard_bp, url_prefix='/leaderboard')
     app.register_blueprint(debug_bp, url_prefix='/debug')
+
+    with app.app_context():
+        try:
+            from app.db import init_db
+            init_db()
+        except Exception:
+            pass  # DB unavailable (no .env configured yet)
 
     return app

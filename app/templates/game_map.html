@@ -1,42 +1,54 @@
-<table>
-	{% for row in map %}
-	<tr>
-		{% for tile in row %}
-		<td>
-			<div class="tile">
-				{% if (not blinded and tile["seen"] == 1) or (blinded and PLAYER in tile["entities"]) %} {% if tile["path"]
-				== CAVE %}
-				<div class="layer base center"></div>
+<div class="map-grid">
+  {% for row in map %}
+    {% for tile in row %}
+      <div class="tile">
+        {# Blinded = only show tile where the player currently stands #}
+        {% set visible = (not blinded and tile["seen"] == 1) or (blinded and PLAYER in tile["entities"]) %}
+        {% if visible %}
 
-				{% elif tile["path"] == ULDRTUNNEL or tile["path"] == URDLTUNNEL %} {% for corr in tile["corridors_seen"] %}
-				<div class="layer base {{ corr }}"></div>
-				{% endfor %} {% elif tile["path"] == PIT %}
-				<div class="layer base pit"></div>
-				{% endif %} {% if BAT in tile["entities"] %}
-				<div class="layer entity bat"></div>
-				{% elif WUMPUS in tile["entities"] %}
-				<div class="layer entity wumpus"></div>
-				{% endif %} {% if PLAYER in tile["entities"] %} {% if tile["path"] == ULDRTUNNEL %} {% if came_from == DOWN
-				or came_from == LEFT %}
-				<div class="layer entity player bottomleft"></div>
-				{% else %}
-				<div class="layer entity player topright"></div>
-				{% endif %} {% elif tile["path"] == URDLTUNNEL %} {% if came_from == DOWN or came_from == RIGHT %}
-				<div class="layer entity player bottomright"></div>
-				{% else %}
-				<div class="layer entity player topleft"></div>
-				{% endif %} {% else %}
-				<div class="layer entity player centered"></div>
-				{% endif %} {% endif %} {% if SLIME in tile["effects"] %}
-				<div class="layer overlay slime"></div>
-				{% endif %} {% if BLOOD in tile["effects"] %}
-				<div class="layer overlay blood"></div>
-				{% endif %} {% else %}
-				<div class="layer hidden"></div>
-				{% endif %}
-			</div>
-		</td>
-		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
+          {% if tile["path"] == CAVE %}
+            <div class="tile-layer tile-base tile-cave"></div>
+          {% elif tile["path"] == ULDRTUNNEL or tile["path"] == URDLTUNNEL %}
+            {% for corr in tile["corridors_seen"] %}
+              <div class="tile-layer tile-base tile-{{ corr }}"></div>
+            {% endfor %}
+          {% elif tile["path"] == PIT %}
+            <div class="tile-layer tile-base tile-pit"></div>
+          {% endif %}
+
+          {% if SLIME in tile["effects"] %}
+            <div class="tile-layer tile-overlay tile-slime"></div>
+          {% endif %}
+          {% if BLOOD in tile["effects"] %}
+            <div class="tile-layer tile-overlay tile-blood"></div>
+          {% endif %}
+
+          {% if BAT in tile["entities"] %}
+            <div class="tile-layer tile-entity tile-bat"></div>
+          {% elif WUMPUS in tile["entities"] %}
+            <div class="tile-layer tile-entity tile-wumpus"></div>
+          {% endif %}
+
+          {% if PLAYER in tile["entities"] %}
+            {% if tile["path"] == ULDRTUNNEL %}
+              {% if came_from == DOWN or came_from == LEFT %}
+                <div class="tile-layer tile-entity tile-player bottomleft"></div>
+              {% else %}
+                <div class="tile-layer tile-entity tile-player topright"></div>
+              {% endif %}
+            {% elif tile["path"] == URDLTUNNEL %}
+              {% if came_from == DOWN or came_from == RIGHT %}
+                <div class="tile-layer tile-entity tile-player bottomright"></div>
+              {% else %}
+                <div class="tile-layer tile-entity tile-player topleft"></div>
+              {% endif %}
+            {% else %}
+              <div class="tile-layer tile-entity tile-player"></div>
+            {% endif %}
+          {% endif %}
+
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endfor %}
+</div>

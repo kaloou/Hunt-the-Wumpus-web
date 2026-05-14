@@ -1,27 +1,35 @@
-<table>
-	{% for row in map %}
-	<tr>
-		{% for tile in row %}
-		<td>
-			<div class="tile">
-				{# si hidden == 0 => on ajoute la classe "hidden" #} {% set h = "hidden" if tile["hidden"] == 0 else "" %} {#
-				========================= BASE (sol) ========================= #} {% if tile["path"] == 1 %}
-				<div class="layer base center {{ h }}"></div>
-
-				{% elif tile["path"] == 3 %}
-				<div class="layer base upleft {{ h }}"></div>
-				<div class="layer base downright {{ h }}"></div>
-
-				{% elif tile["path"] == 4 %}
-				<div class="layer base upright {{ h }}"></div>
-				<div class="layer base downleft {{ h }}"></div>
-
-				{% elif tile["path"] == 6 %}
-				<div class="layer base pit {{ h }}"></div>
-				{% endif %}
-			</div>
-		</td>
-		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
+<div class="map-ratio-box">
+  <div class="map-frame">
+    <div class="map-grid">
+      {% for row in map %}
+        {% for tile in row %}
+          <div class="tile">
+            {% if tile["path"] == CAVE %}
+              <div class="tile-layer tile-base tile-cave"></div>
+            {% elif tile["path"] == ULDRTUNNEL %}
+              <div class="tile-layer tile-base tile-upleft"></div>
+              <div class="tile-layer tile-base tile-downright"></div>
+            {% elif tile["path"] == URDLTUNNEL %}
+              <div class="tile-layer tile-base tile-upright"></div>
+              <div class="tile-layer tile-base tile-downleft"></div>
+            {% elif tile["path"] == PIT %}
+              <div class="tile-layer tile-base tile-pit"></div>
+            {% endif %}
+            {% if SLIME in tile["effects"] %}
+              <div class="tile-layer tile-overlay tile-slime"></div>
+            {% endif %}
+            {% if BLOOD in tile["effects"] %}
+              <div class="tile-layer tile-overlay tile-blood"></div>
+            {% endif %}
+            {% if WUMPUS in tile["entities"] %}
+              <div class="tile-layer tile-entity tile-wumpus"></div>
+            {% endif %}
+            {% if BAT in tile["entities"] %}
+              <div class="tile-layer tile-entity tile-bat"></div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</div>

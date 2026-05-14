@@ -1,3 +1,34 @@
-{% extends "base.html" %} {% block title %}Menu principal{% endblock %} {% block content %}
-<a href="{{ url_for ('game.select_level') }}" style="position: absolute; z-index: 10; margin-bottom: 100px">Jouer au jeu</a>
-{% include 'menu_map.html' %} {% include 'controls.html' %} {% endblock %}
+{% extends "base.html" %}
+{% block title %}Hunt The Wumpus{% endblock %}
+{% block content %}
+<div class="screen-menu app">
+
+  <!-- Full-screen backdrop map (varied terrain) -->
+  <div class="menu-backdrop">
+    {% include 'menu_map.html' %}
+  </div>
+  <div class="menu-backdrop-grad"></div>
+
+  <!-- Left panel -->
+  <div class="menu-panel col gap-6">
+    <div class="col gap-4">
+      <div class="wordmark display">Hunt the <em>Wumpus</em></div>
+      <p class="menu-tagline">One arrow. One monster.<br>Total darkness.</p>
+    </div>
+    <div class="divider"></div>
+    <nav class="menu-actions col gap-2">
+      <a href="{{ url_for('game.select_level') }}" class="btn btn-primary btn-lg">↳ Enter the Cave</a>
+      <a href="{{ url_for('leaderboard.index') }}" class="btn btn-ghost">🏆 Hall of Hunters</a>
+      {% if session.get('username') %}
+        <div class="row gap-2" style="margin-top:4px;">
+          <span class="label" style="color:rgba(241,230,205,.5); flex:1;">{{ session['username'] }}</span>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm">Déconnexion</a>
+        </div>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm">↪ Se connecter / S'inscrire</a>
+      {% endif %}
+    </nav>
+  </div>
+
+</div>
+{% endblock %}

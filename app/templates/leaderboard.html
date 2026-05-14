@@ -1,3 +1,54 @@
-{% extends "base.html" %} {% block title %}Leaderboard{% endblock %} {% block content %}
-<h1>Voici le leaderboard</h1>
+{% extends "base.html" %}
+{% block title %}Hall of Hunters{% endblock %}
+{% block content %}
+<div class="screen-leaderboard app">
+  <div class="cave-backdrop"></div>
+
+  <div class="row gap-3" style="position:relative; z-index:2; align-items:center;">
+    <h1 class="display" style="font-size:32px; color:var(--parchment);">🏆 Hall of Hunters</h1>
+    <div class="grow"></div>
+    <a href="{{ url_for('game.select_level') }}" class="btn btn-primary btn-sm">↳ Play</a>
+    <a href="{{ url_for('game.index') }}" class="btn btn-ghost btn-sm">← Menu</a>
+  </div>
+
+  <div class="panel" style="position:relative; z-index:2; flex:1; overflow:hidden; display:flex; flex-direction:column;">
+    {% if entries %}
+    <div class="leaderboard-table" style="flex:1; overflow-y:auto;">
+      <div class="leaderboard-header">
+        <span class="lb-rank">#</span>
+        <span class="lb-name">Hunter</span>
+        <span class="lb-score">Score</span>
+        <span class="lb-level">Level</span>
+        <span class="lb-level">Time</span>
+      </div>
+      {% for entry in entries %}
+      <div class="leaderboard-row {% if session.get('username') == entry['username'] %}you{% endif %}">
+        <span class="lb-rank mono">{{ entry['rank'] }}</span>
+        <span class="lb-name mono">{{ entry['username'] }}</span>
+        <span class="lb-score mono">{{ entry['score'] }}</span>
+        <span class="lb-level mono">
+          {% if entry['level'] == 1 %}Easy{% elif entry['level'] == 2 %}Normal{% else %}Hard{% endif %}
+        </span>
+        <span class="lb-level mono">{{ entry['time_seconds'] }}s</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:40px;">
+      <div style="text-align:center; color:var(--ink-2);">
+        <div style="font:400 42px/1 var(--font-display); font-style:italic; margin-bottom:12px;">No hunters yet.</div>
+        <div style="font:400 16px/1.5 var(--font-display); font-style:italic; opacity:.7;">
+          Be the first to slay the Wumpus.
+        </div>
+        {% if not session.get('username') %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="margin-top:20px;">
+          Create an account to compete
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
 {% endblock %}

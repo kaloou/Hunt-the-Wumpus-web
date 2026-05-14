@@ -1,11 +1,32 @@
-{% extends "base.html" %} {% block title %}WINNER{% endblock %} {% block content %}
-<h1>Vous avez Gagné ! Le Wumpus à été tué/h1>
-
-
-<form action="" method="GET">
-	<a href="{{ url_for('game.replay') }}">Rejouer</button>
-	<a href="{{ url_for('game.index') }}">Revenir au menu principal</a>
-	<a href="{{ url_for('game.map_view') }}">Visualiser la map</a>
-</form>
+{% extends "base.html" %}
+{% block title %}Victory!{% endblock %}
+{% block content %}
+<div class="screen-gameover screen-win app">
+  <p class="gameover-kicker" style="animation: fade-up .6s ease both .1s; color: var(--gold);">— victory —</p>
+  <h1 class="gameover-headline display" style="animation: fade-up .7s ease both .2s;">
+    The Wumpus<br>Is <em>Dead</em>
+  </h1>
+  <p class="gameover-tagline" style="animation: fade-up .7s ease both .35s;">
+    The cave falls silent. You survive.
+  </p>
+  <div class="wumpus-sprite defeated" style="animation: fade-up .9s ease both .4s; margin: 12px 0;"></div>
+  <div class="win-score mono" style="animation: fade-up .8s ease both .45s;">{{ score }}</div>
+  <div class="win-score-label" style="animation: fade-up .7s ease both .55s; margin-bottom: 4px;">FINAL SCORE</div>
+  <div class="end-stats" style="animation: fade-up .7s ease both .55s;">
+    <div class="end-stat">
+      <span class="val">{{ moves }}</span>
+      <span class="lbl">Moves</span>
+    </div>
+    <div class="end-stat">
+      <span class="val">{{ elapsed }}s</span>
+      <span class="lbl">Time</span>
+    </div>
+  </div>
+  <div class="end-actions" style="animation: fade-up .7s ease both .65s; margin-top: 8px;">
+    <a href="{{ url_for('game.replay') }}" class="btn btn-primary">Play Again</a>
+    <a href="{{ url_for('leaderboard.index') }}" class="btn btn-ghost">🏆 Leaderboard</a>
+    <a href="{{ url_for('game.map_view') }}" class="btn btn-ghost">Reveal Map</a>
+    <a href="{{ url_for('game.index') }}" class="btn btn-ghost">Menu</a>
+  </div>
+</div>
 {% endblock %}
-@

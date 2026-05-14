@@ -1,16 +1,57 @@
-from flask import Blueprint, request, render_template, session, redirect, url_for
+import time
+from flask import Blueprint, request, render_template, session, redirect, url_for, send_from_directory
+import os
 from app.game.map_generator import generate_map, create_menu_map, place_player
 from app.game.logic import move_player, shoot_arrow, check_bat_move, move_player_express
 from app.game.constants import *
 
 game_bp = Blueprint('game', __name__)
 
+_PROTOTYPE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static', 'prototype'))
+
+
+def get_senses(game_map, y, x):
+    cell = game_map[y][x]
+    senses = []
+    if BLOOD in cell['effects']:
+        senses.append('smell')
+    if SLIME in cell['effects']:
+        senses.append('draft')
+    neighbors = [
+        game_map[(y - 1) % ROW][x],
+        game_map[(y + 1) % ROW][x],
+        game_map[y][(x - 1) % COL],
+        game_map[y][(x + 1) % COL],
+    ]
+    if any(BAT in n['entities'] for n in neighbors):
+        senses.append('squeak')
+    return senses
+
+
+def make_menu_map():
+    """Generate a varied map (with tunnels, pits, entities) for the menu backdrop."""
+    m = generate_map(NORMAL)
+    return m
+
+
+# -------------------------
+# HI-FI PROTOTYPE
+# -------------------------
+@game_bp.route('/prototype')
+def prototype_index():
+    return redirect('/prototype/')
+
+@game_bp.route('/prototype/')
+@game_bp.route('/prototype/<path:filename>')
+def prototype(filename='Hunt the Wumpus.html'):
+    return send_from_directory(_PROTOTYPE_DIR, filename)
+
 # -------------------------
 # MENU
 # -------------------------
 @game_bp.route('/')
 def index():
-    return render_template('menu.html', map=create_menu_map())
+    return render_template('menu.html', map=make_menu_map())
 
 # -------------------------
 # SELECT LEVEL
@@ -34,6 +75,9 @@ def select_level():
     session['level'] = level
     session['blinded'] = "blindfolded" in request.args
     session['express'] = "Express" in request.args
+    session['moves'] = 0
+    session['arrows'] = 1
+    session['game_start'] = time.time()
 
     return redirect(url_for('game.play'))
 
@@ -45,6 +89,8 @@ def replay():
     level = session.get('level')
     blinded = session.get('blinded', False)
     express = session.get('express', False)
+    user_id = session.get('user_id')
+    username = session.get('username')
 
     if level not in (EASY, NORMAL, HARD):
         return redirect(url_for('game.index'))
@@ -61,6 +107,12 @@ def replay():
     session['level'] = level
     session['blinded'] = blinded
     session['express'] = express
+    session['moves'] = 0
+    session['arrows'] = 1
+    session['game_start'] = time.time()
+    if user_id:
+        session['user_id'] = user_id
+        session['username'] = username
 
     return redirect(url_for('game.play'))
 
@@ -80,31 +132,46 @@ def play():
     y = session['y']
     x = session['x']
     came_from = session.get('came_from')
+    moves = session.get('moves', 0)
+    level = session.get('level', NORMAL)
+    elapsed = int(time.time() - session.get('game_start', time.time()))
 
-    # ---- Mouvement
     express = session.get('express', False)
     move_func = move_player_express if express else move_player
 
     if direction_y is not None:
         y, x, came_from = move_func(game_map, direction_y, y, x, came_from)
         session['last_direction'] = direction_y
+        moves += 1
 
     elif direction_x is not None:
         y, x, came_from = move_func(game_map, direction_x, y, x, came_from)
         session['last_direction'] = direction_x
+        moves += 1
 
     elif shoot is not None:
         wumpus_hit = shoot_arrow(game_map, shoot, y, x, came_from)
-        final_map = game_map
+        session['final_map'] = game_map
         session.pop('game_map', None)
-        session['final_map'] = final_map
+        session['arrows'] = 0
         if wumpus_hit:
+            score = max(0, 1000 - moves * 10 - elapsed)
             session['win'] = True
+            session['score'] = score
+            session['elapsed'] = elapsed
+            try:
+                from app.db import save_score
+                save_score(
+                    session.get('user_id'),
+                    session.get('username', 'Hunter'),
+                    score, moves, elapsed, level
+                )
+            except Exception:
+                pass
             return redirect(url_for("game.win"))
         else:
             return redirect(url_for("game.game_over", cause="shoot"))
 
-    # BAT CHECK
     y, x = check_bat_move(game_map, y, x)
 
     cell = game_map[y][x]
@@ -123,8 +190,22 @@ def play():
     session['y'] = y
     session['x'] = x
     session['came_from'] = came_from
+    session['moves'] = moves
 
-    return render_template("game.html", map=game_map, came_from=came_from , blinded=session.get('blinded', False))
+    senses = get_senses(game_map, y, x)
+
+    return render_template(
+        "game.html",
+        map=game_map,
+        came_from=came_from,
+        blinded=session.get('blinded', False),
+        senses=senses,
+        moves=moves,
+        elapsed=elapsed,
+        level=level,
+        arrows=session.get('arrows', 1),
+    )
+
 # -------------------------
 # GAME OVER
 # -------------------------
@@ -148,7 +229,12 @@ def win():
     if not final_map or not win:
         return redirect(url_for('game.index'))
 
-    return render_template("win.html")
+    return render_template(
+        "win.html",
+        score=session.get('score', 0),
+        moves=session.get('moves', 0),
+        elapsed=session.get('elapsed', 0),
+    )
 
 # -------------------------
 # MAP VIEW

@@ -1,43 +1,98 @@
-{% extends "base.html" %} {% block title %}Carte finale{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %}Carte finale{% endblock %}
+{% block content %}
+<div class="screen-reveal app">
+  <div class="cave-backdrop"></div>
 
-<table>
-	{% for row in map %}
-	<tr>
-		{% for tile in row %}
-		<td>
-			<div class="tile">
-				{% if tile["path"] == 1 %}
-				<div class="layer base center"></div>
+  <div class="row gap-3" style="position: relative; z-index: 2; align-items: center;">
+    <h1 class="display" style="font-size: 28px; color: var(--parchment);">Map Reveal</h1>
+    <div class="grow"></div>
+    <a href="{{ url_for('game.replay') }}" class="btn btn-primary btn-sm">Play Again</a>
+    <a href="{{ url_for('game.index') }}" class="btn btn-ghost btn-sm">Menu</a>
+  </div>
 
-				{% elif tile["path"] == 3 %}
-				<div class="layer base upleft"></div>
-				<div class="layer base downright"></div>
+  <div class="reveal-body" style="position: relative; z-index: 2;">
 
-				{% elif tile["path"] == 4 %}
-				<div class="layer base upright"></div>
-				<div class="layer base downleft"></div>
+    <!-- Full map -->
+    <div class="grow map-ratio-box">
+      <div class="map-frame">
+        <div class="map-grid">
+          {% for row in map %}
+            {% for tile in row %}
+              <div class="tile">
+                {% if tile["path"] == CAVE %}
+                  <div class="tile-layer tile-base tile-cave"></div>
+                {% elif tile["path"] == ULDRTUNNEL %}
+                  <div class="tile-layer tile-base tile-upleft"></div>
+                  <div class="tile-layer tile-base tile-downright"></div>
+                {% elif tile["path"] == URDLTUNNEL %}
+                  <div class="tile-layer tile-base tile-upright"></div>
+                  <div class="tile-layer tile-base tile-downleft"></div>
+                {% elif tile["path"] == PIT %}
+                  <div class="tile-layer tile-base tile-pit"></div>
+                {% endif %}
 
-				{% elif tile["path"] == 6 %}
-				<div class="layer base pit"></div>
-				{% endif %} {% if 8 in tile["entities"] %}
-				<div class="layer entity wumpus"></div>
-				{% endif %} {% if 7 in tile["entities"] %}
-				<div class="layer entity bat"></div>
-				{% endif %} {% if 9 in tile["entities"] %}
-				<div class="layer entity player centered"></div>
-				{% endif %} {% if 11 in tile["effects"] %}
-				<div class="layer overlay slime"></div>
-				{% endif %} {% if 10 in tile["effects"] %}
-				<div class="layer overlay blood"></div>
-				{% endif %}
-			</div>
-		</td>
-		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
+                {% if SLIME in tile["effects"] %}
+                  <div class="tile-layer tile-overlay tile-slime"></div>
+                {% endif %}
+                {% if BLOOD in tile["effects"] %}
+                  <div class="tile-layer tile-overlay tile-blood"></div>
+                {% endif %}
 
-<a href="{{ url_for('game.replay') }}">Rejouer</a>
-<a href="{{ url_for('game.index') }}">Menu principal</a>
+                {% if WUMPUS in tile["entities"] %}
+                  <div class="tile-layer tile-entity tile-wumpus"></div>
+                {% endif %}
+                {% if BAT in tile["entities"] %}
+                  <div class="tile-layer tile-entity tile-bat"></div>
+                {% endif %}
+                {% if PLAYER in tile["entities"] %}
+                  <div class="tile-layer tile-entity tile-player"></div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
 
+    <!-- Legend -->
+    <div class="reveal-sidebar">
+      <div class="panel col gap-3" style="padding: 16px; flex: 1;">
+        <h2 class="label" style="color: var(--ink-2);">Legend</h2>
+        <div class="divider"></div>
+
+        <div class="legend-row">
+          <div class="legend-glyph" style="background-image:url('{{ url_for('static', filename='assets/sprites/map/00_tileset_wumpus_cave256.png') }}');background-size:contain;image-rendering:pixelated;border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Cave room</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-glyph" style="background-image:url('{{ url_for('static', filename='assets/sprites/map/01_tileset_wumpus_cave256.png') }}');background-size:contain;image-rendering:pixelated;border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Pit</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-glyph" style="background:rgba(196,74,58,.5);border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Blood (Wumpus nearby)</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-glyph" style="background:rgba(100,160,100,.5);border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Slime (Pit nearby)</span>
+        </div>
+        <div class="divider"></div>
+        <div class="legend-row">
+          <div class="legend-glyph" style="background-image:url('{{ url_for('static', filename='assets/sprites/enemies/wumpus/00_wumpus_sprite_sheet1024.png') }}');background-size:contain;image-rendering:pixelated;border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Wumpus</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-glyph" style="background-image:url('{{ url_for('static', filename='assets/sprites/enemies/bat/00_bat_sprite_sheet1024.png') }}');background-size:contain;image-rendering:pixelated;border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Bat</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-glyph" style="background-image:url('{{ url_for('static', filename='assets/sprites/player/Soldier_1/00_soldier1.png') }}');background-size:contain;image-rendering:pixelated;border-radius:3px;"></div>
+          <span style="font: 400 12px/1 var(--font-ui); color: var(--ink);">Your last position</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

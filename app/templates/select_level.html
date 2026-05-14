@@ -1,19 +1,77 @@
-{% extends "base.html" %} {% block title %}Selection du niveau{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %}Choisir un niveau{% endblock %}
+{% block content %}
+<div class="screen-level app">
+  <div class="cave-backdrop"></div>
 
-<form action="" method="GET" id="levels">
-	<button type="submit" name="level" id="up" value="1" class="btn-secondary">EASY</button>
-	<button type="submit" name="level" id="down" value="2" class="btn-secondary">NORMAL</button>
-	<button type="submit" name="level" id="left" value="3" class="btn-secondary">HARD</button>
+  <div class="col gap-2" style="position: relative; z-index: 2; align-items: center;">
+    <div class="wordmark display" style="font-size: 36px; text-align: center;">Hunt the <em>Wumpus</em></div>
+    <p class="label" style="opacity: .5; letter-spacing: .2em;">Choose your fate</p>
+  </div>
 
-	<br />
+  <form action="{{ url_for('game.select_level') }}" method="GET"
+        style="display: flex; flex-direction: column; gap: 32px; flex: 1; position: relative; z-index: 2;">
 
-	<label for="blindfolded">Blinded Mode</label><br />
-	<input type="checkbox" id="blindfolded" name="blindfolded" value="blinded" />
+    <div class="level-cards">
+      <input class="level-radio" type="radio" name="level" id="level-1" value="1" checked />
+      <label class="level-card" for="level-1">
+        <div class="level-name">Easy</div>
+        <div class="level-tagline">A warm dungeon. Still deadly.</div>
+        <div class="level-sep"></div>
+        <div class="level-risk">
+          <span class="risk-bar on"></span><span class="risk-bar off"></span><span class="risk-bar off"></span>
+          <span style="margin-left:6px; font:400 10px/1 var(--font-mono); opacity:.55;">Low danger</span>
+        </div>
+        <div class="level-detail">Fewer pits · Score ×1</div>
+      </label>
 
-	<br />
+      <input class="level-radio" type="radio" name="level" id="level-2" value="2" />
+      <label class="level-card" for="level-2">
+        <div class="level-name">Normal</div>
+        <div class="level-tagline">The classic hunt.</div>
+        <div class="level-sep"></div>
+        <div class="level-risk">
+          <span class="risk-bar on"></span><span class="risk-bar on"></span><span class="risk-bar off"></span>
+          <span style="margin-left:6px; font:400 10px/1 var(--font-mono); opacity:.55;">Medium danger</span>
+        </div>
+        <div class="level-detail">Balanced · Score ×1.5</div>
+      </label>
 
-	<label for="Express">Express Mode</label><br />
-	<input type="checkbox" id="Express" name="Express" value="Express" />
-</form>
+      <input class="level-radio" type="radio" name="level" id="level-3" value="3" />
+      <label class="level-card" for="level-3">
+        <div class="level-name">Hard</div>
+        <div class="level-tagline">The cave wants you dead.</div>
+        <div class="level-sep"></div>
+        <div class="level-risk">
+          <span class="risk-bar on"></span><span class="risk-bar on"></span><span class="risk-bar on"></span>
+          <span style="margin-left:6px; font:400 10px/1 var(--font-mono); opacity:.55;">High danger</span>
+        </div>
+        <div class="level-detail">More pits + bats · Score ×2</div>
+      </label>
+    </div>
 
+    <div class="mode-chips">
+      <div class="mode-chip-wrap">
+        <input class="mode-checkbox" type="checkbox" id="blindfolded" name="blindfolded" value="blinded" />
+        <label class="mode-chip" for="blindfolded">
+          <span class="mode-chip-label">⊘ Blinded</span>
+          <span class="mode-chip-hint">Only see current tile</span>
+        </label>
+      </div>
+      <div class="mode-chip-wrap">
+        <input class="mode-checkbox" type="checkbox" id="Express" name="Express" value="Express" />
+        <label class="mode-chip" for="Express">
+          <span class="mode-chip-label">⚡ Express</span>
+          <span class="mode-chip-hint">Auto-run through tunnels</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="row gap-2" style="justify-content: center; margin-top: auto;">
+      <a href="{{ url_for('game.index') }}" class="btn btn-ghost">← Back</a>
+      <button type="submit" class="btn btn-primary btn-lg">Descend ↓</button>
+    </div>
+
+  </form>
+</div>
 {% endblock %}
