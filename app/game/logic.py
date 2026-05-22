@@ -1,5 +1,5 @@
 from app.game.constants import *
-from app.game.map_generator import generate_map, place_player
+from app.game.map_generator import generate_map, place_player, place_bat
 import random
 
 def launch_game(difficulty):
@@ -168,7 +168,7 @@ def check_bat_move(map, y, x):
         map[y][x]["nb_visited"] = 0
 
         map[ny][nx]["entities"].append(PLAYER)
-        map[ny][nx]["entities"].append(BAT)
+        place_bat(map, 1)
 
         if map[ny][nx]["seen"] == 0:
             map[ny][nx]["seen"] = 1

@@ -1,13 +1,10 @@
 import time
-from flask import Blueprint, request, render_template, session, redirect, url_for, send_from_directory
-import os
-from app.game.map_generator import generate_map, create_menu_map, place_player
+from flask import Blueprint, request, render_template, session, redirect, url_for
+from app.game.map_generator import generate_map, place_player
 from app.game.logic import move_player, shoot_arrow, check_bat_move, move_player_express
 from app.game.constants import *
 
 game_bp = Blueprint('game', __name__)
-
-_PROTOTYPE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static', 'prototype'))
 
 
 def get_senses(game_map, y, x):
@@ -35,18 +32,6 @@ def make_menu_map():
 
 
 # -------------------------
-# HI-FI PROTOTYPE
-# -------------------------
-@game_bp.route('/prototype')
-def prototype_index():
-    return redirect('/prototype/')
-
-@game_bp.route('/prototype/')
-@game_bp.route('/prototype/<path:filename>')
-def prototype(filename='Hunt the Wumpus.html'):
-    return send_from_directory(_PROTOTYPE_DIR, filename)
-
-# -------------------------
 # MENU
 # -------------------------
 @game_bp.route('/')
@@ -63,6 +48,9 @@ def select_level():
     if level not in (EASY, NORMAL, HARD):
         return render_template("select_level.html")
 
+    user_id = session.get('user_id')
+    username = session.get('username')
+
     game_map = generate_map(level)
     y, x = place_player(game_map)
 
@@ -78,6 +66,9 @@ def select_level():
     session['moves'] = 0
     session['arrows'] = 1
     session['game_start'] = time.time()
+    if user_id:
+        session['user_id'] = user_id
+        session['username'] = username
 
     return redirect(url_for('game.play'))
 

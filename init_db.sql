@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(64) UNIQUE NOT NULL,
+    password_hash VARCHAR(256) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS scores (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    username VARCHAR(64) NOT NULL,
+    score INTEGER NOT NULL,
+    moves INTEGER NOT NULL,
+    time_seconds INTEGER NOT NULL,
+    level INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);

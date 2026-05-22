@@ -1,9 +1,12 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv absent sur le serveur du prof
 
-class Config :
+class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key')
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
